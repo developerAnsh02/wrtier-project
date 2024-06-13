@@ -9,6 +9,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Writer Admin</title>
     @include('layouts.css')
+    @livewireStyles
   </head>
 
 <body class="skin-default-dark fixed-layout">
@@ -34,7 +35,7 @@
         </footer>
     </div>
     @include('layouts.js')
-
+    @livewireScripts
 </body>
 
 </html>

@@ -98,5 +98,104 @@ class OrderController extends Controller
 
     }
 
-    
+    public function qc(Request $request)
+        {
+            // $data['executive'] = User::where('role_id', 3)->get();
+            // $data['writer'] = User::where('role_id', 6)->where('flag', 0)->get();
+            // $data['SubWriter'] = User::where('role_id', 7)->where('flag', 0)->get();
+            
+            // $ordersQuery = Order::with('writer','mulsubwriter', 'subwriter')
+            //     ->whereNotNull('admin_id')
+            //     ->where('admin_id', '!=', 0)
+            //     ->orderBy('created_at', 'desc');
+
+            // $searchTerm = $request->input('search');
+            // $status = $request->input('status');
+            // $writer = $request->input('writer');
+            // $SubWriter = $request->input('SubWriter');
+            // $dateStatus = $request->input('date_status');
+            // $fromDate = $request->input('fromDate');
+            // $toDate = $request->input('toDate');
+            // $admin = $request->input('admin');
+            // $qc_standard = $request->input('qc_standard');
+            // $secondaryMobile = $request->input('secondary_mobile');
+            // $selectedDataTextBox = $request->input('selectedDataTextBox');
+            // $edited_on = $request->input('edited_on');
+            // $OldSubWriter = $request->input('OldSubWriter');
+
+            // if ($fromDate != '' && $toDate != '') {
+            //     if ($edited_on == 'Order-date') {
+            //         $ordersQuery->whereBetween('writer_deadline', [$fromDate, $toDate]);
+            //     } elseif ($edited_on == 'Qc-date') {
+            //         $ordersQuery->whereBetween('qc_date', [$fromDate, $toDate]);
+            //     }
+            // } elseif ($fromDate != '') {
+            //     if ($edited_on == 'Order-date') {
+            //         $ordersQuery->whereDate('writer_deadline', $fromDate);
+            //     } elseif ($edited_on == 'Qc-date') {
+            //         $ordersQuery->whereDate('qc_date', $fromDate);
+            //     }
+            // }
+
+            // if ($searchTerm != '') {
+            //     $ordersQuery->where(function ($query) use ($searchTerm) {
+            //         $query->where('order_id', 'like', '%' . $searchTerm . '%')
+            //             ->orWhere('title', $searchTerm);
+            //     });
+            // }
+
+            // // if ($status != '') {
+            // //     $ordersQuery->where('qc_status', $status);
+            // // }
+            // if ($status != '') {
+            //     $ordersQuery->where(function($query) use ($status) {
+            //         if ($status == 'Not Assigned') {
+            //             $query->where('writer_status', '')->orWhereNull('writer_status')->orWhere('writer_status', 'Not Assigned');
+            //         } else {
+            //             $query->where('writer_status', $status);
+            //         }
+            //     });
+            // }
+
+            // if ($writer != '') {
+            //     $ordersQuery->where('wid', $writer);
+            // }
+            //   if ($SubWriter != '') {
+                  
+            //     $multipleWriters = multipleswiter::where('user_id', $SubWriter)->get();
+                
+            //     $orderIds = $multipleWriters->pluck('order_id')->toArray();
+                
+            //     $ordersQuery->whereIn('id', $orderIds);
+                
+            // }
+            
+             
+            // if ($OldSubWriter != '') {
+            //     $ordersQuery->where('swid',$OldSubWriter);
+            // }
+            
+            // if ($admin != '') {
+            //     $ordersQuery->where('qc_admin', $admin);
+            // }
+
+            // if ($qc_standard != '') {
+            //     $ordersQuery->where('qc_standard', $qc_standard);
+            // }
+
+           
+            // if ($fromDate != '' || $toDate != '' || $searchTerm != '' || $status != '' || $writer != '' || $SubWriter != '' || $admin != '' || $qc_standard != '' || $OldSubWriter != '') {
+            //     $orders = $ordersQuery->paginate(1000);
+            //     $data['orders'] = $orders;
+            // }
+            // else
+            // {
+            //     $orders = $ordersQuery->paginate(10);
+            //     $data['orders'] = $orders;
+            // }
+
+
+            // return view('order.qc-sheet', compact('data'));
+            return view('order.qc-sheet');
+        }
 }
