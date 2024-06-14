@@ -14,11 +14,22 @@ class QcSheet extends Component
 
     protected $paginationTheme = 'bootstrap';
 
+    public $modal;
     
     public function mount()
     {
         // Initialize properties with default values if needed
         // Example: $this->search = '';
+    }
+    public function editQc($orderId)
+    {
+        $orderAvailable = Order::find($orderId);
+        if ($orderAvailable) {
+            $this->modal = $orderAvailable->order_id;
+        } else {
+           return redirect()->to('/Qc-Sheets');
+        }
+        
     }
 
     public function render()
