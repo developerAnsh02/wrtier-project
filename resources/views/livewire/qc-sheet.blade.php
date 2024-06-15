@@ -157,12 +157,7 @@
                                             <div class="label label-table label-danger">
                                                 Not Assign
                                             </div>
-                                        @endif                                                
-                                        @if($order->subwriter && Auth::user()->role_id==1)                                                                                        
-                                            <div class="label label-table label-danger">
-                                                Old Sub Writer :  {{ $order->subwriter->name }}
-                                            </div>                                                
-                                        @endif
+                                        @endif                                                                                        
                                     </td>
                                     <td>
                                         @if($order->qc_comment != null)
@@ -173,48 +168,99 @@
                                     </td>
                                     
                                     <td class="text-center">
-                                        <button type="button" data-bs-toggle="modal" data-bs-target="#editModal" wire:click="editQc({{$order->id}})" class="btn btn-sm btn-light-primary"><li class="fa fa-edit"> </li></button>
+                                        <button type="button" data-bs-toggle="modal" data-bs-target="#editModal{{$order->id}}" wire:click="editQc({{$order->id}})" class="btn btn-sm btn-light-primary"><li class="fa fa-edit"> </li></button>
                                     </td>
-                                    @push('scripts')
-<script>
-    document.addEventListener('livewire:load', function () {
-        Livewire.on('editModal', () => {
-            $('#editModal').modal('show'); // Show the modal when 'editModal' event is emitted
-        });
-
-        $('#editModal').on('hide.bs.modal', () => {
-            Livewire.emit('editModalClosed'); // Emit an event when the modal is closed
-        });
-    });
-</script>
-@endpush
+                                    
                                 </tr>
+                                <!-- Modal -->
+<div wire:ignore.self class="modal fade" id="editModal{{$order->id}}" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        <form wire:submit.prevent="updateQc({{ $order->id }})">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel">Edit QC</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <!-- <button type="button" wire:click="closeModal" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> -->
+            </div>
+            <div class="modal-body">
+                <!-- Add your form or content for editing here -->
+                <div class="row g-9 text-center">
+                    <div class="col pb-2">
+                        <div class="btn w-100 btn-outline-secondary p-2">{{ $order->order_id }}</div>
+                    </div>
+                </div>
+                <div class="row g-9 mb-8 text-start">
+                    <div class="col-md-6 fv-row">
+                        <label class="fs-6 fw-bold mb-2">Qc Status</label>
+                        <select wire:model.defer="qc_status" required="" name="qc_status" aria-label="Select Service Type" data-control="select2" class="form-select form-select-solid form-select-lg select2-hidden-accessible" data-select2-id="select2-data-16-796922" tabindex="-1" aria-hidden="true">
+                            <option value=""  data-select2-id="select2-data-18-e9lh12"></option>
+                            
+                            @if(auth()->user()->role_id == 3)
+                                <option value="Draft Feedback">Draft Feedback</option>
+                                <option value="Attached to Email (Draft)">Attached to Email (Draft) </option>
+                                <option value="Feedback">Feedback</option>
+                                <option value="Attached to Email (Complete file)">Attached to Email (Complete file) </option>
+                            @endif
+                            @if(auth()->user()->role_id == 8)
+                                <option value="Not Assigned">Not Assigned</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Draft Ready">Draft Ready</option>
+                                <option value="Draft Delivered">Draft Delivered</option>
+                                <option value="Complete file Ready">Complete file Ready</option>
+                                <option value="Feedback">Feedback</option>
+                                <option value="Feedback Delivered">Feedback Delivered</option>
+                                <option value="Delivered">Delivered</option>
+                                <option value="Hold">Hold</option>
+                            @endif
+                            @if(auth()->user()->role_id == 6)
+                                <option value="Draft Ready">Draft Ready</option>
+                                <option value="Complete file Ready">Complete file Ready</option>
+                            @endif
+                        </select>
+
+                        
+                    </div>
+                    <div class="col-md-6 fv-row">
+                        <label class="fs-6 fw-bold mb-2">Qc standard</label>
+                            <select wire:model.defer="qc_standard" required="" name="qc_standard" aria-label="Select Service Type" data-control="select2" class="form-select form-select-solid form-select-lg select2-hidden-accessible" data-select2-id="select2-data-16-796922" tabindex="-1" aria-hidden="true">
+                                <option value=""  data-select2-id="select2-data-18-e9lh12"></option>
+                                <option value="poor">poor</option>
+                                <option value="moderate">moderate</option>
+                                <option value="Good">Good</option>
+                            </select>
+                    </div>
+                </div>
+                
+
+                
+
+                
+                <div class="row g-9 mb-8 text-start">
+                    <div class="col-md-12 fv-row">
+                        <label class="fs-6 fw-bold mb-2">Comment</label>
+                        <textarea wire:model.defer="comment" required="" name="comment" value="" class="form-control form-control-solid" id="" cols="30" rows="3">{{$order->qc_comment}}</textarea>
+                    </div>
+                    
+                </div>
+                
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Save changes</button>
+                <!-- <button type="button" wire:click="closeModal" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> -->
+                <!-- Add a Save changes button if needed -->
+                <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
+            </div>
+        </form>
+        </div>
+    </div>
+</div>
                                 @endforeach
                             </tbody>
                         </table>                        
                         <!-- Pagination -->
                         {{ $orders->links() }}
                     </div>
-                    <!-- Modal -->
-<div wire:ignore.self class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editModalLabel">Edit QC</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <!-- Add your form or content for editing here -->
-                <p>Edit QC content here...</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <!-- Add a Save changes button if needed -->
-                <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
-            </div>
-        </div>
-    </div>
-</div>
 
 
                 </div>

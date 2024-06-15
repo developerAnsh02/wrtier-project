@@ -14,23 +14,62 @@ class QcSheet extends Component
 
     protected $paginationTheme = 'bootstrap';
 
-    public $modal;
+    public $order;
     
-    public function mount()
-    {
-        // Initialize properties with default values if needed
-        // Example: $this->search = '';
-    }
+    public $qc_status;
+    public $qc_standard;
+    public $comment;
+    
+    protected $rules = [
+        'qc_status' => 'required',
+        'qc_standard' => 'required',
+        'comment' => 'required',
+    ];
+
     public function editQc($orderId)
     {
         $orderAvailable = Order::find($orderId);
         if ($orderAvailable) {
-            $this->modal = $orderAvailable->order_id;
+            $this->order = $orderAvailable;
+            //------------------
+            $this->qc_status = $orderAvailable->writer_status;
+            $this->qc_standard = $orderAvailable->qc_standard;
+            $this->comment = $orderAvailable->qc_comment;
         } else {
            return redirect()->to('/Qc-Sheets');
         }
         
     }
+    public function updateQc($id)
+    {
+        $this->validate();
+
+        $orderUpdate = Order::find($id);
+        // dd($orderUpdate);
+        $orderUpdate->writer_status = $this->qc_status;
+        $orderUpdate->qc_standard = $this->qc_standard;
+        $orderUpdate->qc_comment = $this->comment;
+        
+        // Debugging output
+        // dd($id, $this->qc_status, $this->qc_standard, $this->comment);
+
+        $orderUpdate->save();
+
+        $this->resetFields();
+
+        session()->flash('message', 'Order updated successfully.');
+        
+    }
+
+    public function resetFields()
+    {
+        $this->qc_status = '';
+        $this->qc_standard = '';
+        $this->comment = '';
+    }
+
+
+   
 
     public function render()
     {
