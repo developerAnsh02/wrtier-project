@@ -18,6 +18,11 @@
             <div class="card">
                 <div class="card-body">
                     <!-- <h4 class="card-title ">Order Date</h4> -->
+                    @if(session()->has('message'))
+                        <div class="alert alert-success alert-dismissible">
+                            {{ session()->get('message') }}
+                        </div>
+                    @endif
                     <div class="table-responsive table-card">
                         <table class="table table-striped">
                             <thead>
@@ -179,8 +184,7 @@
         <form wire:submit.prevent="updateQc({{ $order->id }})">
             <div class="modal-header">
                 <h5 class="modal-title" id="editModalLabel">Edit QC</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                <!-- <button type="button" wire:click="closeModal" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> -->
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>               
             </div>
             <div class="modal-body">
                 <!-- Add your form or content for editing here -->
@@ -217,8 +221,7 @@
                                 <option value="Complete file Ready">Complete file Ready</option>
                             @endif
                         </select>
-
-                        
+ 
                     </div>
                     <div class="col-md-6 fv-row">
                         <label class="fs-6 fw-bold mb-2">Qc standard</label>
@@ -230,11 +233,7 @@
                             </select>
                     </div>
                 </div>
-                
 
-                
-
-                
                 <div class="row g-9 mb-8 text-start">
                     <div class="col-md-12 fv-row">
                         <label class="fs-6 fw-bold mb-2">Comment</label>
@@ -245,11 +244,7 @@
                 
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-primary">Save changes</button>
-                <!-- <button type="button" wire:click="closeModal" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> -->
-                <!-- Add a Save changes button if needed -->
-                <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
+                <button wire:click.prevent="updateQc({{ $order->id }})" data-bs-dismiss="modal" type="submit" class="btn btn-primary">Save changes</button>                
             </div>
         </form>
         </div>
@@ -267,4 +262,8 @@
             </div>
         </div>
     </div>
+        <!-- <link href="../assets/node_modules/toast-master/css/jquery.toast.css" rel="stylesheet">
+    <link href="dist/css/pages/other-pages.css" rel="stylesheet">
+    <script src="../assets/node_modules/toast-master/js/jquery.toast.js"></script>
+    <script src="dist/js/pages/toastr.js"></script> -->
 </div>
