@@ -19,6 +19,7 @@ class QcSheet extends Component
     public $qc_status;
     public $qc_standard;
     public $comment;
+    public $ai_score_input;
     
     protected $rules = [
         'qc_status' => 'required',
@@ -35,6 +36,8 @@ class QcSheet extends Component
             $this->qc_status = $orderAvailable->writer_status;
             $this->qc_standard = $orderAvailable->qc_standard;
             $this->comment = $orderAvailable->qc_comment;
+
+            $this->ai_score_input = $orderAvailable->ai_score;
         } else {
            return redirect()->to('/Qc-Sheets');
         }
@@ -68,7 +71,35 @@ class QcSheet extends Component
         $this->comment = '';
     }
 
+    public function toggleCheck($orderId)
+    {
+        $order = Order::findOrFail($orderId);
+        $order->qc_checked = !$order->qc_checked; // Toggle the value
+        $order->save();
+        
+        session()->flash('message', 'Checkbox updated successfully.');
+    }
 
+    public function updateAiScore($id)
+    {
+        $validatedData = $this->validate([
+            'ai_score_input' => 'nullable|numeric|min:0|max:100',
+        ]);
+
+        $orderUpdate = Order::find($id);
+        if (!$orderUpdate) {
+            return redirect()->to('/Qc-Sheets');
+        }
+
+        $orderUpdate->ai_score = $this->ai_score_input;
+
+        $orderUpdate->save();
+
+        $this->reset(['ai_score_input']); // Reset AI score input field
+
+        session()->flash('message', 'AI Score updated successfully.');
+    }
+    
    
 
     public function render()
