@@ -32,7 +32,7 @@ class QcSheet extends Component
         $orderAvailable = Order::find($orderId);
         if ($orderAvailable) {
             $this->order = $orderAvailable;
-            //------------------
+            
             $this->qc_status = $orderAvailable->writer_status;
             $this->qc_standard = $orderAvailable->qc_standard;
             $this->comment = $orderAvailable->qc_comment;
@@ -48,14 +48,11 @@ class QcSheet extends Component
         $this->validate();
 
         $orderUpdate = Order::find($id);
-        // dd($orderUpdate);
+        
         $orderUpdate->writer_status = $this->qc_status;
         $orderUpdate->qc_standard = $this->qc_standard;
         $orderUpdate->qc_comment = $this->comment;
-        
-        // Debugging output
-        // dd($id, $this->qc_status, $this->qc_standard, $this->comment);
-
+               
         $orderUpdate->save();
 
         $this->resetFields();
@@ -110,15 +107,16 @@ class QcSheet extends Component
         $data['writers'] = User::where('role_id', 6)->where('flag', 0)->get();
         $data['subWriters'] = User::where('role_id', 7)->where('flag', 0)->get();
 
-        $ordersQuery = Order::with('writer', 'mulsubwriter', 'subwriter')
-            ->whereNotNull('admin_id')
-            ->where('admin_id', '!=', 0)
-            ->orderBy('created_at', 'desc');
-
+        $data['orders'] = Order::with(['writer:id,name', 'subwriter:id,name','mulsubwriter' => function ($query) {$query->with('user:id,name');}])
+        ->whereNotNull('admin_id')
+        ->where('admin_id', '!=', 0)
+        ->orderBy('created_at', 'desc')
+        ->select([
+            'id', 'order_id', 'qc_admin','wid', 'writer_deadline', 'qc_date', 
+            'writer_status', 'qc_standard', 'ai_score', 'qc_comment', 'qc_checked'
+        ])
+        ->paginate(10);
         
-
-        $data['orders'] = $ordersQuery->paginate(10);
-
         return view('livewire.qc-sheet', $data);
     }
 }

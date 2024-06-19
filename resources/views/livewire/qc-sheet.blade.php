@@ -19,11 +19,27 @@
                 <div class="card-body">
                     <!-- <h4 class="card-title ">Order Date</h4> -->
                     @if(session()->has('message'))
-                        <div class="alert alert-success alert-dismissible">
+                        <div class="alert alert-success alert-dismissible" id="alert">
                             {{ session()->get('message') }}
                         </div>
                     @endif
-                    <button class="tst3 btn btn-success text-white">Success Message</button>
+                    <style>
+                        #alert {
+                        animation: fadeOut 2s forwards;
+                        animation-delay: 1s;
+                        }
+                        @keyframes fadeOut {
+                        to {
+                            opacity: 0;
+                            visibility: hidden;
+                        }
+                        }
+                    </style>
+                    <script>
+                        setTimeout(function() {
+                            document.getElementById("alert").style.display = "none";
+                        }, 5000); // 5000ms = 5 seconds
+                    </script>
 
                     <div class="table-responsive table-card">
                         <table class="table table-striped">
@@ -182,72 +198,72 @@
                                     <div wire:ignore.self class="modal fade" id="editModal{{$order->id}}" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
                                         <div class="modal-dialog">
                                             <div class="modal-content">
-                                            <form wire:submit.prevent="updateQc({{ $order->id }})">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title" id="editModalLabel">Edit QC</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>               
-                                                </div>
-                                                <div class="modal-body">
-                                                    <!-- Add your form or content for editing here -->
-                                                    <div class="row g-9 text-center">
-                                                        <div class="col pb-2">
-                                                            <div class="btn w-100 btn-outline-secondary p-2">{{ $order->order_id }}</div>
-                                                        </div>
+                                                <form wire:submit.prevent="updateQc({{ $order->id }})">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="editModalLabel">Edit QC</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>               
                                                     </div>
-                                                    <div class="row g-9 mb-8 text-start">
-                                                        <div class="col-md-6 fv-row">
-                                                            <label class="fs-6 fw-bold mb-2">Qc Status</label>
-                                                            <select wire:model.defer="qc_status" required="" name="qc_status" aria-label="Select Service Type" data-control="select2" class="form-select form-select-solid form-select-lg select2-hidden-accessible" data-select2-id="select2-data-16-796922" tabindex="-1" aria-hidden="true">
-                                                                <option value=""  data-select2-id="select2-data-18-e9lh12"></option>
-                                                                
-                                                                @if(auth()->user()->role_id == 3)
-                                                                    <option value="Draft Feedback">Draft Feedback</option>
-                                                                    <option value="Attached to Email (Draft)">Attached to Email (Draft) </option>
-                                                                    <option value="Feedback">Feedback</option>
-                                                                    <option value="Attached to Email (Complete file)">Attached to Email (Complete file) </option>
-                                                                @endif
-                                                                @if(auth()->user()->role_id == 8)
-                                                                    <option value="Not Assigned">Not Assigned</option>
-                                                                    <option value="In Progress">In Progress</option>
-                                                                    <option value="Draft Ready">Draft Ready</option>
-                                                                    <option value="Draft Delivered">Draft Delivered</option>
-                                                                    <option value="Complete file Ready">Complete file Ready</option>
-                                                                    <option value="Feedback">Feedback</option>
-                                                                    <option value="Feedback Delivered">Feedback Delivered</option>
-                                                                    <option value="Delivered">Delivered</option>
-                                                                    <option value="Hold">Hold</option>
-                                                                @endif
-                                                                @if(auth()->user()->role_id == 6)
-                                                                    <option value="Draft Ready">Draft Ready</option>
-                                                                    <option value="Complete file Ready">Complete file Ready</option>
-                                                                @endif
-                                                            </select>
-                                    
+                                                    <div class="modal-body">
+                                                        <!-- Add your form or content for editing here -->
+                                                        <div class="row g-9 text-center">
+                                                            <div class="col pb-2">
+                                                                <div class="btn w-100 btn-outline-secondary p-2">{{ $order->order_id }}</div>
+                                                            </div>
                                                         </div>
-                                                        <div class="col-md-6 fv-row">
-                                                            <label class="fs-6 fw-bold mb-2">Qc standard</label>
+                                                        <div class="row g-9 mb-8 text-start">
+                                                            <div class="col-md-6 fv-row">
+                                                                <label class="fs-6 fw-bold mb-2">Qc Status</label>
+                                                                <select wire:model.defer="qc_status" required="" name="qc_status" aria-label="Select Service Type" data-control="select2" class="form-select form-select-solid form-select-lg select2-hidden-accessible" data-select2-id="select2-data-16-796922" tabindex="-1" aria-hidden="true">
+                                                                    <option value=""  data-select2-id="select2-data-18-e9lh12"></option>
+                                                                    
+                                                                    @if(auth()->user()->role_id == 3)
+                                                                        <option value="Draft Feedback">Draft Feedback</option>
+                                                                        <option value="Attached to Email (Draft)">Attached to Email (Draft) </option>
+                                                                        <option value="Feedback">Feedback</option>
+                                                                        <option value="Attached to Email (Complete file)">Attached to Email (Complete file) </option>
+                                                                    @endif
+                                                                    @if(auth()->user()->role_id == 8)
+                                                                        <option value="Not Assigned">Not Assigned</option>
+                                                                        <option value="In Progress">In Progress</option>
+                                                                        <option value="Draft Ready">Draft Ready</option>
+                                                                        <option value="Draft Delivered">Draft Delivered</option>
+                                                                        <option value="Complete file Ready">Complete file Ready</option>
+                                                                        <option value="Feedback">Feedback</option>
+                                                                        <option value="Feedback Delivered">Feedback Delivered</option>
+                                                                        <option value="Delivered">Delivered</option>
+                                                                        <option value="Hold">Hold</option>
+                                                                    @endif
+                                                                    @if(auth()->user()->role_id == 6)
+                                                                        <option value="Draft Ready">Draft Ready</option>
+                                                                        <option value="Complete file Ready">Complete file Ready</option>
+                                                                    @endif
+                                                                </select>
+                                        
+                                                            </div>
+                                                            <div class="col-md-6 fv-row">
+                                                                <label class="fs-6 fw-bold mb-2">Qc standard</label>
                                                                 <select wire:model.defer="qc_standard" required="" name="qc_standard" aria-label="Select Service Type" data-control="select2" class="form-select form-select-solid form-select-lg select2-hidden-accessible" data-select2-id="select2-data-16-796922" tabindex="-1" aria-hidden="true">
                                                                     <option value=""  data-select2-id="select2-data-18-e9lh12"></option>
                                                                     <option value="poor">poor</option>
                                                                     <option value="moderate">moderate</option>
                                                                     <option value="Good">Good</option>
                                                                 </select>
+                                                            </div>
                                                         </div>
-                                                    </div>
 
-                                                    <div class="row g-9 mb-8 text-start">
-                                                        <div class="col-md-12 fv-row">
-                                                            <label class="fs-6 fw-bold mb-2">Comment</label>
-                                                            <textarea wire:model.defer="comment" required="" name="comment" value="" class="form-control form-control-solid" id="" cols="30" rows="3">{{$order->qc_comment}}</textarea>
+                                                        <div class="row g-9 mb-8 text-start">
+                                                            <div class="col-md-12 fv-row">
+                                                                <label class="fs-6 fw-bold mb-2">Comment</label>
+                                                                <textarea wire:model.defer="comment" required="" name="comment" value="" class="form-control form-control-solid" id="" cols="30" rows="3">{{$order->qc_comment}}</textarea>
+                                                            </div>
+                                                            
                                                         </div>
                                                         
                                                     </div>
-                                                    
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button wire:click.prevent="updateQc({{ $order->id }})" data-bs-dismiss="modal" type="submit" class="btn btn-primary">Save changes</button>                
-                                                </div>
-                                            </form>
+                                                    <div class="modal-footer">
+                                                        <button wire:click.prevent="updateQc({{ $order->id }})" data-bs-dismiss="modal" type="submit" class="btn btn-primary">Save changes</button>                
+                                                    </div>
+                                                </form>
                                             </div>
                                         </div>
                                     </div>                                    
@@ -263,8 +279,4 @@
             </div>
         </div>
     </div>
-        <link href="../assets/node_modules/toast-master/css/jquery.toast.css" rel="stylesheet">
-    <link href="dist/css/pages/other-pages.css" rel="stylesheet">
-    <script src="../assets/node_modules/toast-master/js/jquery.toast.js"></script>
-    <script src="dist/js/pages/toastr.js"></script>
 </div>
