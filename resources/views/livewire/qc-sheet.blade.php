@@ -15,6 +15,98 @@
     <!-- Display the orders -->
     <div class="row">
         <div class="col-12">
+            <div class="card card-xxl-stretch mb-5 mb-xl-8">
+                <div class="card-header">
+                    <h3 class="card-title align-items-start flex-column">
+                        <span class="card-label fs-5 mb-1">Filter</span>
+                    </h3>
+                </div>
+                <div class="card-body py-3">
+                    <form wire:submit.prevent="applyFilters">
+                        <div class="row mb-2">
+                            <div class="col-md-3 fv-row">
+                                <input wire:model.debounce.300ms="search" type="search" name="search" id="search" class="form-control form-control-solid form-select-lg" placeholder="Search OrderCode">
+                            </div>
+
+                            <div class="col-lg-3 fv-row">
+                                <select wire:model="filterWriter" wire:change="filterSubWriters" name="writer" id="writer" class="form-select form-select-solid form-select-lg">
+                                    <option value="">Select Writer Name</option>
+                                    @foreach($writers as $tl)
+                                        <option value="{{ $tl->id }}">{{ $tl->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="col-lg-3 fv-row">
+                                <select wire:model="filterSubWriter" name="SubWriter" id="SubWriter" class="form-select form-select-solid form-select-lg">
+                                    <option value="">Select Sub Writer</option>
+                                    @if ($filterWriter)
+                                        @foreach($subWriters as $Sub)
+                                            <option value="{{ $Sub->id }}">{{ $Sub->name }}</option>
+                                        @endforeach
+                                    @else
+                                        @foreach($subWriters as $Sub)
+                                            <option value="{{ $Sub->id }}">{{ $Sub->name }}</option>
+                                        @endforeach
+                                    @endif
+                                </select>
+                            </div>
+
+                            <div class="col-lg-3 fv-row">
+                                <select wire:model="filterQcStandard" name="qc_standard" id="qc_standard" class="form-select form-select-solid form-select-lg">
+                                    <option value="">Select QcStandard</option>
+                                    <option value="poor">Poor</option>
+                                    <option value="moderate">Moderate</option>
+                                    <option value="good">Good</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-lg-3 fv-row">
+                                <select wire:model="filterStatus" name="status" id="status" class="form-select form-select-solid form-select-lg" data-control="select2">
+                                    <option value="">Select Status</option>
+                                    <option value="Not Assigned">Not Assigned</option>
+                                    <option value="In Progress">In Progress</option>
+                                    <option value="Draft Ready">Draft Ready</option>
+                                    <option value="Draft Feedback">Draft Feedback</option>
+                                    <option value="Attached to Email (Draft)">Attached to Email (Draft)</option>
+                                    <option value="Draft Delivered">Draft Delivered</option>
+                                    <option value="Complete file Ready">Complete file Ready</option>
+                                    <option value="Feedback">Feedback</option>
+                                    <option value="Feedback Delivered">Feedback Delivered</option>
+                                    <option value="Attached to Email (Complete file)">Attached to Email (Complete file)</option>
+                                    <option value="Delivered">Delivered</option>
+                                    <option value="Hold">Hold</option>
+                                </select>
+                            </div>
+
+                            <div class="col-lg-3 fv-row">
+                                <select wire:model="filterEditedOn" name="edited_on" id="edited_on" class="form-select form-select-solid form-select-lg">
+                                    <option value="">Date Type</option>
+                                    <option value="Order-date">Order Date</option>
+                                    <option value="Qc-date">QC Date</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-3 fv-row">
+                                <input wire:model="filterFromDate" type="date" name="fromDate" id="fromDate" class="form-control form-control-solid form-select-lg" placeholder="From Date">
+                            </div>
+
+                            <div class="col-md-3 fv-row">
+                                <input wire:model="filterToDate" type="date" name="toDate" id="toDate" class="form-control form-control-solid form-select-lg" placeholder="To Date">
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-md-3 fv-row">
+                                <button type="submit" class="btn btn-sm btn-primary">Search</button>
+                                <button type="button" wire:click="resetFilters" class="btn btn-sm btn-danger">Reset</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-12">
             <div class="card">
                 <div class="card-body">
                     <!-- <h4 class="card-title ">Order Date</h4> -->
