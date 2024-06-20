@@ -85,11 +85,8 @@ Route::middleware('auth')->group(function ()
     Route::get('/order/{id}', [OrderController::class, 'edit']);
 
     //Qc
-    // Route::get('/qc-sheet', QcSheet::class)->name('qc-sheet');
     Route::get('/Qc-Sheets', [OrderController::class, 'Qc'])->name('Qc-Sheets');
-    Route::post('/qc/{id}', [OrderController::class, 'QcUpdate'])->name('qc.update');
-    route::get('/search-qc', [SearchController::class, 'searchQc']);
-    route::get('/Qc-edit.{id}', [SearchController::class, 'Qc_edit'])->name('Qc-edit.update');
+    
 
 
 });
