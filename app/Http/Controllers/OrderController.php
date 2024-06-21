@@ -99,7 +99,11 @@ class OrderController extends Controller
     }
 
     public function qc(Request $request)
-        {            
-            return view('order.qc-sheet');
-        }
+    {            
+        return view('order.qc-sheet');
+    }
+    public function order2(Request $request)
+    {            
+        return view('order.order');
+    }
 }

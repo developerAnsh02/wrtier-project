@@ -84,9 +84,11 @@ Route::middleware('auth')->group(function ()
     Route::put('/order/{id}' , [OrderController::class, 'update_order'])->name('order.update');
     Route::get('/order/{id}', [OrderController::class, 'edit']);
 
+    // livewire
     //Qc
     Route::get('/Qc-Sheets', [OrderController::class, 'Qc'])->name('Qc-Sheets');
-    
+    // order
+    Route::get('/order2' , [OrderController::class, 'order2'])->name('order2');
 
 
 });
