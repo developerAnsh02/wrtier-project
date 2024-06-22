@@ -68,15 +68,15 @@ class OrderComponent extends Component
         if ($this->tl_id) {
             $data['writers'] = User::where('flag', 0)
                 ->where('role_id', 7)
-                
                 ->where('tl_id', $this->tl_id)
-                ->get(['id', 'name', 'admin_id']);
-            // $data['writers'] = User::where('tl_id', $tlId)->get();
-
+                ->get(['id', 'name']);
         } else {
-            // If TL is not selected, fetch all writers
-            $data['writers'] = User::where('flag', 0)->where('role_id' , 7)->get(['id' , 'name' , 'admin_id']);
+            $data['writers'] = User::where('flag', 0)->where('role_id', 7)->get(['id', 'name']);
         }
+
+        // Clear selected writers when TL changes
+        $this->selectedWriters = [];
+
         return $data['writers'];
     }
     public function resetTLId()
@@ -97,8 +97,8 @@ class OrderComponent extends Component
         ->paginate(10);
 
         $data['tl'] = User::where('role_id', 6)->where('flag', 0)->where('admin_id' , auth()->user()->id)->orderBy('created_at', 'desc')->get(['id', 'name']);
-        $data['writers'] = User::where('flag', 0)->where('role_id' , 7)->get(['id' , 'name' , 'admin_id']);
-        // $data['writers'] = $this->filterSubWriters();
+        // $data['writers'] = User::where('flag', 0)->where('role_id' , 7)->get(['id' , 'name' , 'admin_id']);
+        $data['writers'] = $this->filterSubWriters();
         return view('livewire.order-component', compact('data'));
     }
     
