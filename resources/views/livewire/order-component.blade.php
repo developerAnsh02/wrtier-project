@@ -14,6 +14,96 @@
     </div>
     <div class="row">
         <div class="col-12">
+            <div class="card card-xxl-stretch mb-5 mb-xl-8">
+                <div class="card-header">
+                    <h3 class="card-title align-items-start flex-column">
+                        <span class="card-label fs-5 mb-1">Filter</span>
+                    </h3>
+                </div>
+                <div class="card-body py-3">
+                    <form wire:submit.prevent="applyFilters">
+                        <div class="row mb-2">
+                            <div class="col-md-3 fv-row">
+                                <input wire:model.debounce.300ms="search" type="search" name="search" id="search" class="form-control form-control-solid form-select-lg" placeholder="OrderCode, Title">
+                            </div>
+
+                            <div class="col-lg-3 fv-row">
+                                <select wire:model="tl_id" wire:change="filterSubWriters" name="writer" id="writer" class="form-select form-select-solid form-select-lg">
+                                    <option value="">Select Writer Name</option>
+                                    @foreach($data['tl'] as $tl)
+                                        <option value="{{ $tl->id }}">{{ $tl->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="col-lg-3 fv-row">
+                                <select wire:model="filterSubWriter" name="SubWriter" id="SubWriter" class="form-select form-select-solid form-select-lg">
+                                    <option value="">Select Sub Writer</option>
+                                    @foreach($data['writers'] as $writer)
+                                        <option value="{{ $writer->id }}">{{ $writer->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="col-lg-3 fv-row">
+                                <select wire:model="filterExtra" name="extra" id="extra" aria-label="Select a Timezone" data-control="select2" data-placeholder="Search By Tech Resit Failed Job" class="form-select form-select-solid form-select-lg" tabindex="-1">
+                                    <option value="">Extra</option>
+                                    <!-- Option for Tech -->
+                                    <option value="tech" {{ old('extra') == 'tech' ? 'selected' : '' }}>Tech</option>
+                                    <!-- Option for Resit -->
+                                    <option value="resit" {{ old('extra') == 'resit' ? 'selected' : '' }}>Resit</option>
+                                    <!-- Option for Failed Job -->
+                                    <option value="1" {{ old('extra') == '1' ? 'selected' : '' }}>First Class Work</option>
+                                    <option value="failedjob">Failed Job</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-lg-3 fv-row">
+                                <select wire:model="filterStatus" name="status" id="status" class="form-select form-select-solid form-select-lg" data-control="select2">
+                                    <option value="">Select Status</option>
+                                    <option value="Not Assigned">Not Assigned</option>
+                                    <option value="In Progress">In Progress</option>
+                                    <option value="Draft Ready">Draft Ready</option>
+                                    <option value="Draft Feedback">Draft Feedback</option>
+                                    <option value="Attached to Email (Draft)">Attached to Email (Draft)</option>
+                                    <option value="Draft Delivered">Draft Delivered</option>
+                                    <option value="Complete file Ready">Complete file Ready</option>
+                                    <option value="Feedback">Feedback</option>
+                                    <option value="Feedback Delivered">Feedback Delivered</option>
+                                    <option value="Attached to Email (Complete file)">Attached to Email (Complete file)</option>
+                                    <option value="Delivered">Delivered</option>
+                                    <option value="Hold">Hold</option>
+                                </select>
+                            </div>
+
+                            <div class="col-lg-3 fv-row">
+                                <select wire:model="filterEditedOn" name="edited_on" id="edited_on" class="form-select form-select-solid form-select-lg">
+                                    <option value="">Date Type</option>
+                                    <option value="Order-date">Order Date</option>
+                                    <option value="Qc-date">QC Date</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-3 fv-row">
+                                <input wire:model="filterFromDate" type="date" name="fromDate" id="fromDate" class="form-control form-control-solid form-select-lg" placeholder="From Date">
+                            </div>
+
+                            <div class="col-md-3 fv-row">
+                                <input wire:model="filterToDate" type="date" name="toDate" id="toDate" class="form-control form-control-solid form-select-lg" placeholder="To Date">
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-md-3 fv-row">
+                                <button type="submit" class="btn btn-sm btn-primary">Search</button>
+                                <button type="button" wire:click="resetFilters" class="btn btn-sm btn-danger">Reset</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-12">
             <div class="card">
                 <div class="card-body">
                     <div class="table-responsive table-card">
@@ -105,6 +195,28 @@
                                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                     </div>
                                                     <div class="modal-body">
+                                                        @if(session()->has('message'))
+                                                            <div class="alert alert-success alert-dismissible" id="alert">
+                                                                {{ session()->get('message') }}
+                                                            </div>
+                                                        @endif
+                                                        <style>
+                                                            #alert {
+                                                            animation: fadeOut 2s forwards;
+                                                            animation-delay: 1s;
+                                                            }
+                                                            @keyframes fadeOut {
+                                                            to {
+                                                                opacity: 0;
+                                                                visibility: hidden;
+                                                            }
+                                                            }
+                                                        </style>
+                                                        <script>
+                                                            setTimeout(function() {
+                                                                document.getElementById("alert").style.display = "none";
+                                                            }, 5000); // 5000ms = 5 seconds
+                                                        </script>
                                                         <div class="row g-9 text-center">
                                                             <div class="col pb-2">
                                                                 <div class="btn w-100 btn-outline-secondary p-2">{{ $order->order_id }}</div>
@@ -229,11 +341,17 @@
                                                             <div class="col-md-12">
                                                                 <div class="form-group has-success">
                                                                     <select wire:model="status" class="form-control form-select mt-3" id="status{{ $order->id }}">
-                                                                        <option value="">Not Assigned</option>
-                                                                        <option value="Completed">Completed</option>
-                                                                        <option value="Inprogress">Inprogress</option>
-                                                                        <option value="dfd">jdf</option>
-                                                                    </select>
+                                                                        <option {{ $order->writer_status == '' ? 'selected' : '' }} value="">Select Status</option>
+																		<option {{ $order->writer_status == 'In progress' ? 'selected' : '' }} value="In progress">In Progress</option>
+																		<option {{ $order->writer_status == 'Completed' ? 'selected' : '' }} value="Completed">Completed</option>
+																		<option {{ $order->writer_status == 'Delivered' ? 'selected' : '' }} value="Delivered">Delivered</option>
+																		<option {{ $order->writer_status == 'Hold' ? 'selected' : '' }} value="Hold">Hold</option>
+																		<option {{ $order->writer_status == 'Draft Delivered' ? 'selected' : '' }} value="Draft Delivered">Draft Delivered</option>
+																		<option {{ $order->writer_status == 'Feedback' ? 'selected' : '' }} value="Feedback">Feedback</option>
+																		<option {{ $order->writer_status == 'Feedback Delivered' ? 'selected' : '' }} value="Feedback Delivered">Feedback Delivered</option>
+																		<option {{ $order->writer_status == 'Quality Accepted' ? 'selected' : '' }} value="Quality Accepted">Quality Accepted</option>
+																		<option {{ $order->writer_status == 'Quality Rejected' ? 'selected' : '' }} value="Quality Rejected">Quality Rejected</option>
+																	</select>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -265,7 +383,7 @@
                                                         </div>
                                                     </div>
                                                     <div class="modal-footer">
-                                                        <button type="submit" class="btn btn-primary">Save changes</button>
+                                                        <button type="submit" data-bs-dismiss="modal" class="btn btn-primary">Save changes</button>
                                                     </div>
                                                 </form>
                                             </div>
