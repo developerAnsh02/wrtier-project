@@ -196,15 +196,15 @@ class OrderComponent extends Component
             }
         }
         
-        // if ($this->tl_id) {
-        //     $ordersQuery->where('wid', $this->tl_id);
-        // }
+        if ($this->tl_id) {
+            $ordersQuery->where('wid', $this->tl_id);
+        }
 
-        // if ($this->filterSubWriter) {                          
-        //     $multipleWriters = multipleswiter::where('user_id', $this->filterSubWriter)->get();            
-        //     $orderIds = $multipleWriters->pluck('order_id')->toArray();            
-        //     $ordersQuery->whereIn('id', $orderIds);            
-        // }
+        if ($this->filterSubWriter) {                          
+            $multipleWriters = multipleswiter::where('user_id', $this->filterSubWriter)->get();            
+            $orderIds = $multipleWriters->pluck('order_id')->toArray();            
+            $ordersQuery->whereIn('id', $orderIds);            
+        }
         
         $data['order'] = $ordersQuery->paginate(10);
         $data['tl'] = User::where('role_id', 6)->where('flag', 0)->where('admin_id' , auth()->user()->id)->orderBy('created_at', 'desc')->get(['id', 'name']);
