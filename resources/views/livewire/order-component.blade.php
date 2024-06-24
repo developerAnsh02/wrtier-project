@@ -14,6 +14,33 @@
     </div>
     <div class="row">
         <div class="col-12">
+        @if(session()->has('message'))
+            <div class="alert alert-success alert-dismissible" id="alert">
+                {{ session()->get('message') }}
+            </div>
+        @endif
+        @if(session()->has('warning'))
+            <div class="alert alert-warning alert-dismissible" id="alert">
+                {{ session()->get('warning') }}
+            </div>
+        @endif
+        <style>
+            #alert {
+            animation: fadeOut 2s forwards;
+            animation-delay: 1s;
+            }
+            @keyframes fadeOut {
+            to {
+                opacity: 0;
+                visibility: hidden;
+            }
+            }
+        </style>
+        <script>
+            setTimeout(function() {
+                document.getElementById("alert").style.display = "none";
+            }, 5000); // 5000ms = 5 seconds
+        </script>
             <div class="card card-xxl-stretch mb-5 mb-xl-8">
                 <div class="card-header">
                     <h3 class="card-title align-items-start flex-column">
@@ -80,8 +107,8 @@
                             <div class="col-lg-3 fv-row">
                                 <select wire:model="filterEditedOn" name="edited_on" id="edited_on" class="form-select form-select-solid form-select-lg">
                                     <option value="">Date Type</option>
-                                    <option value="Order-date">Order Date</option>
-                                    <option value="Qc-date">QC Date</option>
+                                    <option value="writer_deadline">Deadline</option>
+                                    <option value="draft_date">Draft Date</option>
                                 </select>
                             </div>
 
@@ -111,12 +138,13 @@
                             <thead>
                                 <tr>
                                     <th>SR NO</th>
-                                    <th>Order ID</th>
+                                    <th>Order Code</th>
                                     <th>Delivery From - Upto</th>
-                                    <th>Deadline</th>
+                                    <th>Title</th>
                                     <th>Status</th>
                                     <th>Words</th>
                                     <th>Writer&TL</th>
+                                    <th>Deadline</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -126,17 +154,34 @@
                                     <td>{{ ($data['order'] ->currentPage() - 1) * $data['order'] ->perPage() + $loop->index + 1 }} </td>
                                     <td>
                                         {{$order->order_id}}
+                                        @if($order->is_fail == 1)
+										<br><div class="label label-table label-danger m-1">Fail Order</div>
+										@endif
+										@if ($order->resit == 'on')
+										<br><div class="label label-table label-danger m-1">Resit</div>
+										@endif
+										@if($order->services == 'First Class Work')
+										<br><div class="label label-table label-info m-1">First Class
+											Work</div>
+										@endif
                                     </td>
                                     <td>
                                         @if ($order->writer_fd && $order->writer_fd != '0000-00-00')
-                                            <div class="d-flex">{{ \Carbon\Carbon::parse($order->writer_fd)->format('jS M ') }} <div style="color:red;  margin-left: 10px;"> {{ $order->writer_fd_h }}</div> </div> <br>
-                                            <div class="d-flex">{{ \Carbon\Carbon::parse($order->writer_ud)->format('jS M ') }} <div style="color:red;  margin-left: 10px;">{{ $order->writer_ud_h }}</div></div>
+                                            <div class="d-flex">{{ \Carbon\Carbon::parse($order->writer_fd)->format('jS M ') }} <div style="color:red;  margin-left: 10px;">{{date('h:i A', strtotime($order->writer_fd_h))}}</div> </div> <br>
+                                            <div class="d-flex">{{ \Carbon\Carbon::parse($order->writer_ud)->format('jS M ') }} <div style="color:red;  margin-left: 10px;">{{date('h:i A', strtotime($order->writer_ud_h))}}</div></div>
                                         @else
                                             <div class="label label-table label-danger">Not Assigned</div>
                                         @endif
                                     </td>
                                     <td>
-                                        {{ \Carbon\Carbon::parse($order->writer_deadline)->format('jS M Y') }}
+                                        {{$order->title }}
+										@if( $order->chapter != '' )
+										<div class="label label-table label-danger">{{$order->chapter}}</div>
+										@endif
+
+										@if( $order->tech == '1' )
+										<div class="label label-table label-success">Technical Work</div>
+										@endif
                                     </td>
                                     <td>
                                         @if($order->writer_status == '' || $order->writer_status == 'Not Assigned' || $order->writer_status == 'Hold')
@@ -180,7 +225,22 @@
                                                 </div>
                                         @endif
                                     </td>
-                                
+                                    <td>
+                                        {{ \Carbon\Carbon::parse($order->writer_deadline)->format('jS M Y') }}
+                                        @if($order->draftrequired == 'Y')
+											<br>
+											<div class="label label-table label-info">
+												( 
+													@if($order->draft_date && $order->draft_date != '0000-00-00')
+														{{ \Carbon\Carbon::parse($order->draft_date)->format('d M Y') }}
+													@endif
+													@if($order->draft_time && $order->draft_time != '00:00:00')
+														{{ \Carbon\Carbon::parse($order->draft_time)->format('g:i A') }}
+													@endif
+												)
+                                            </div>
+										@endif
+                                    </td>
                                     <td class="text-nowrap" >
                                         <button type="button" data-bs-toggle="modal" data-bs-target="#editModal{{$order->order_id}}" wire:click="" class="btn btn-sm btn-light-primary"><li class="fa fa-edit"> </li></button>
                                     </td>

@@ -24,6 +24,7 @@ class OrderComponent extends Component
     public $selectedWriters = [];
 
     
+    public $filterSubWriter;
     public $filterExtra;
     public $filterStatus;
     public $filterEditedOn;
@@ -133,7 +134,7 @@ class OrderComponent extends Component
             'id', 'order_id', 'services', 'typeofpaper', 'pages', 'title',
             'writer_deadline', 'chapter', 'wid', 'swid', 'writer_status',
             'writer_fd', 'writer_ud', 'writer_ud_h', 'writer_fd_h',
-            'resit', 'tech'
+            'resit', 'tech', 'is_fail', 'draftrequired', 'draft_date', 'draft_time'
         ]);
 
         
@@ -152,6 +153,58 @@ class OrderComponent extends Component
                 $ordersQuery->where('writer_status', $this->filterStatus);
             }
         }
+        
+        if($this->filterExtra)
+        {
+            if($this->filterExtra == 'tech')
+            {
+                $ordersQuery->where('tech', '1' );
+            }
+            elseif($this->filterExtra == 'resit')
+            {
+                $ordersQuery->where('resit', 'on' );
+            }
+            elseif($this->filterExtra == 'failedjob')
+            {
+                $ordersQuery->where('is_fail', '1' );                
+            }
+            elseif($this->filterExtra == '1')
+            {
+                $ordersQuery->where('services', 'First Class Work' );                
+            }
+        }
+
+        if ($this->filterEditedOn || $this->filterFromDate || $this->filterToDate) {
+            if ($this->filterFromDate && $this->filterToDate && $this->filterEditedOn) 
+            {
+                if($this->filterEditedOn == 'draft_date')
+                {
+                    $ordersQuery->whereBetween($this->filterEditedOn, [$this->filterFromDate, $this->filterToDate])->where('draftrequired' , 'y' );
+                }else
+                {
+                    $ordersQuery->whereBetween($this->filterEditedOn, [$this->filterFromDate, $this->filterToDate]);
+                }                
+            }elseif ($this->filterFromDate == '' || $this->filterToDate == '' && $this->filterEditedOn == 'draft_date') 
+            {               
+                session()->flash('warning', 'Please select both date for Draft Date');
+            }elseif($this->filterFromDate != '' && $this->filterToDate != '')
+            {
+                $ordersQuery->whereBetween('writer_deadline', [$this->filterFromDate, $this->filterToDate]);
+            }elseif($this->filterFromDate != '')
+            {
+                $ordersQuery->where('writer_deadline', $this->filterFromDate);
+            }
+        }
+        
+        // if ($this->tl_id) {
+        //     $ordersQuery->where('wid', $this->tl_id);
+        // }
+
+        // if ($this->filterSubWriter) {                          
+        //     $multipleWriters = multipleswiter::where('user_id', $this->filterSubWriter)->get();            
+        //     $orderIds = $multipleWriters->pluck('order_id')->toArray();            
+        //     $ordersQuery->whereIn('id', $orderIds);            
+        // }
         
         $data['order'] = $ordersQuery->paginate(10);
         $data['tl'] = User::where('role_id', 6)->where('flag', 0)->where('admin_id' , auth()->user()->id)->orderBy('created_at', 'desc')->get(['id', 'name']);
