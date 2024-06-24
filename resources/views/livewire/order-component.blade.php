@@ -174,7 +174,7 @@
 
                                         @elseif($order->swid)
                                                 <div class="label label-table label-info">
-                                                    @if(order->subwriter && $order->subwriter->name)
+                                                    @if($order->subwriter && $order->subwriter->name)
                                                         {{$order->subwriter->name}}
                                                     @endif
                                                 </div>

@@ -13,12 +13,14 @@
   </head>
 
 <body class="skin-default-dark fixed-layout">
+
     <div class="preloader">
         <div class="loader">
             <div class="loader__figure"></div>
             <p class="loader__label">Elite admin</p>
         </div>
     </div>
+    
     <div id="main-wrapper">
       @include('layouts.header')
       
