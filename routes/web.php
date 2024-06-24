@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\OrderController;
 use App\Livewire\QcSheet;
+use NunoMaduro\Collision\Writer;
 
 /*
 |--------------------------------------------------------------------------
@@ -89,6 +90,14 @@ Route::middleware('auth')->group(function ()
     Route::get('/Qc-Sheets', [OrderController::class, 'Qc'])->name('Qc-Sheets');
     // order
     Route::get('/order2' , [OrderController::class, 'order2'])->name('order2');
+
+
+    // Writer-available
+    Route::get('/writer-available', [OrderController::class , 'writerAvailablity'])->name('writer-available');
+
+    // ticket number
+
+    route::get('/ticket-sheet', [OrderController::class ,  'tickerSheet'])->name('ticket-sheet');
 
 
 });

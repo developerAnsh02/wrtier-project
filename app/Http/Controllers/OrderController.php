@@ -106,4 +106,14 @@ class OrderController extends Controller
     {            
         return view('order.order');
     }
+
+    public function writerAvailablity()
+    {
+        return view('order.writer-available');
+    }
+
+    public function tickerSheet()
+    {
+        return view('order.ticketNumber-Sheet');
+    }
 }

@@ -26,6 +26,24 @@ class Order extends Model
             $query->select('id', 'name');
         }]);
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'uid');
+    }
+
+  
+    
+      public function order()
+    {
+        return $this->belongsTo(multipleswiter::class, 'order_id');
+    }
+
+    public function feedback()
+    {
+        return $this->hasMany(Feedback::class, 'order_id', 'id');
+
+    }
     
 
 

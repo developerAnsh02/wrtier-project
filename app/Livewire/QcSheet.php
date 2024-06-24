@@ -118,7 +118,8 @@ class QcSheet extends Component
     public function toggleCheck($orderId)
     {
         $order = Order::findOrFail($orderId);
-        $order->qc_checked = !$order->qc_checked; // Toggle the value
+        $order->qc_checked = !$order->qc_checked;
+        $order->qc_admin = auth()->user()->name;
         $order->save();
         
         session()->flash('message', 'Checkbox updated successfully.');

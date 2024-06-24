@@ -47,4 +47,8 @@ class User extends Authenticatable
     {
         return $this->hasMany(User::class, 'tl_id', 'id');
     }
+    public function writerWork()
+    {
+        return $this->hasMany(multipleswiter::class, 'user_id', 'id')->with('order');
+    }
 }
