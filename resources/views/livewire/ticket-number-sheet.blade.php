@@ -1,13 +1,13 @@
 <div class="container-fluid">
     <div class="row page-titles">
         <div class="col-md-5 align-self-center">
-            <h4 class="text-themecolor">Available Writer</h4>
+            <h4 class="text-themecolor">Ticket Generated Order</h4>
         </div>
         <div class="col-md-7 align-self-center text-end">
             <div class="d-flex justify-content-end align-items-center">
                 <ol class="breadcrumb justify-content-end">
                     <li class="breadcrumb-item"><a href="/dashboard">Home</a></li>
-                    <li class="breadcrumb-item active">A-W</li>
+                    <li class="breadcrumb-item active">T G O</li>
                 </ol>
             </div>
         </div>
@@ -95,7 +95,24 @@
                                         @endif
                                     </td>
                                     <td>{{ \Carbon\Carbon::parse($order->feedback_date)->format('d F Y H:i') }}</td>
-                                    <td>{{$order->status_issue}}</td>
+                                    <td>
+                                    @if($order->status_issue == 'Issue Raised')
+											<span class="label label-table label-danger">{{$order->status_issue}}</span>
+											@elseif($order->status_issue == 'Client Discussion Done')
+											<span class="label label-table label-warning" >{{$order->status_issue}}</span>
+											@elseif($order->status_issue == "Writer discussion Done")
+											<span class="label label-table label-success" >{{$order->status_issue}}</span>
+											@elseif($order->status_issue == 'Work in progress')
+											<span class="label label-table label-info" >{{$order->status_issue}}</span>
+											@elseif($order->status_issue == 'Case Resolved')
+											<span class="label label-table label-success" >{{$order->status_issue}}</span>
+											@elseif($order->status_issue == 'Issues Raised Again')
+											<span class="label label-table label-danger" >{{$order->status_issue}}</span>
+											@else
+											<span class="label label-table label-primary" >{{$order->status_issue}}</span>
+											
+										@endif
+                                    </td>
                                     <td>
                                         <button type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#commentsModal{{$order->id}}">
                                             View Comments
@@ -134,7 +151,7 @@
                             @foreach($order->feedback as $feedback)
                                 @if($feedback->comment != '')
                                     <tr>
-                                        <td>{{ $feedback->user->name ?? 'N/A' }}</td>
+                                        <td>Marketing Team </td>
                                         <td>{{ $feedback->comment }}</td>
                                         <td>{{ \Carbon\Carbon::parse($feedback->created_at)->format('d F Y') }}</td>
                                     </tr>

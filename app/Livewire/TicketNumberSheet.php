@@ -8,8 +8,12 @@ use App\Models\User;
 use App\Models\Order;
 use App\Models\multipleswiter;
 
+
 class TicketNumberSheet extends Component
 {
+    use WithPagination;
+    protected $paginationTheme = 'bootstrap';
+
     public function render()
     {
         $orders = Order::with([
