@@ -97,7 +97,7 @@ class OrderComponent extends Component
         $this->upto_date_time = null;
         $this->selectedWriters = [];
 
-        
+        // $this->resetPage();
         
 
         // Flash success message
@@ -123,7 +123,7 @@ class OrderComponent extends Component
 
         return $data['writers'];
     }
-    public function filterSubWritersEdit()
+    public function SubWritersEdit()
     {
         if ($this->tl_id_edit) {
             $data['writers2'] = User::where('flag', 0)
@@ -141,7 +141,9 @@ class OrderComponent extends Component
     }
     public function resetTLId()
     {
+        // $this->tl_id = '';
         $this->tl_id_edit = '';
+        // $this->resetFilters();
     }
 
     public function render()
@@ -228,7 +230,7 @@ class OrderComponent extends Component
         $data['tl'] = User::where('role_id', 6)->where('flag', 0)->where('admin_id' , auth()->user()->id)->orderBy('created_at', 'desc')->get(['id', 'name']);
         // $data['writers'] = User::where('flag', 0)->where('role_id' , 7)->get(['id' , 'name' , 'admin_id']);
         $data['writers'] = $this->filterSubWriters();
-        $data['writers2'] = $this->filterSubWritersEdit();
+        $data['writers2'] = $this->SubWritersEdit();
         return view('livewire.order-component', compact('data'));
     }
     

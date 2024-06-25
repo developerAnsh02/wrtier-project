@@ -122,6 +122,15 @@
                         </div>
                         <div class="row mb-2">
                             <div class="col-md-3 fv-row">
+                                <input type="text" name="dates" value="01/01/2024 - 01/15/2024" class="form-control form-control-solid form-select-lg"/>
+
+                                <script>
+                                    $('input[name="dates"]').daterangepicker();
+                                </script>
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-md-3 fv-row">
                                 <button type="submit" class="btn btn-sm btn-primary">Search</button>
                                 <button type="button" wire:click="resetFilters" class="btn btn-sm btn-danger">Reset</button>
                             </div>
@@ -285,7 +294,7 @@
                                                         <div class="row d-flex align-items-center">
                                                             <div class="col-md-12">
                                                                 <div class="form-group has-success">
-                                                                    <select wire:model="tl_id_edit" wire:change="filterSubWritersEdit" class="form-control form-select mt-3" id="writer-tl{{ $order->id }}">
+                                                                    <select wire:model="tl_id_edit" wire:change="SubWritersEdit" class="form-control form-select mt-3" id="writer-tl{{ $order->id }}">
                                                                         <option value="">Select TL</option>
                                                                         @foreach($data['tl'] as $tl)
                                                                         <option value="{{ $tl->id }}">{{ $tl->name }}</option>
