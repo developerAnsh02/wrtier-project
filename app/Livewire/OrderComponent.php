@@ -14,6 +14,7 @@ class OrderComponent extends Component
 
     protected $paginationTheme = 'bootstrap';
     public $tl_id;
+    public $tl_id_edit;
     
     public $order;
     public $status;
@@ -22,9 +23,9 @@ class OrderComponent extends Component
     public $upto_date;
     public $upto_date_time;
     public $selectedWriters = [];
-
     
     public $filterSubWriter;
+    
     public $filterExtra;
     public $filterStatus;
     public $filterEditedOn;
@@ -39,7 +40,7 @@ class OrderComponent extends Component
     public function resetFilters()
     {
         $this->tl_id = '';
-        $this->selectedWriters = [];
+        $this->filterSubWriter = '';
         $this->filterExtra = '';
         $this->filterStatus = '';
         $this->filterEditedOn = '';
@@ -58,7 +59,7 @@ class OrderComponent extends Component
         $order = Order::findOrFail($orderId);
         // dd([
         //     'orderId' => $orderId,
-        //     'tl_id' => $this->tl_id,
+        //     'tl_id' => $this->tl_id_edit,
         //     'status' => $this->status,
         //     'from_date' => $this->from_date,
         //     'upto_date' => $this->upto_date,
@@ -69,7 +70,7 @@ class OrderComponent extends Component
         // $this->validate();
         // Update the field name
         $order->writer_status = $this->status;
-        $order->wid = $this->tl_id;
+        $order->wid = $this->tl_id_edit;
         $order->writer_fd = $this->from_date;
         $order->writer_ud = $this->upto_date;
         $order->writer_fd_h = $this->from_date_time;
@@ -117,13 +118,30 @@ class OrderComponent extends Component
         }
 
         // Clear selected writers when TL changes
-        $this->selectedWriters = [];
+        // $this->selectedWriters = [];
+        $this->filterSubWriter = '';
 
         return $data['writers'];
     }
+    public function filterSubWritersEdit()
+    {
+        if ($this->tl_id_edit) {
+            $data['writers2'] = User::where('flag', 0)
+                ->where('role_id', 7)
+                ->where('tl_id', $this->tl_id_edit)
+                ->get(['id', 'name']);
+        } else {
+            $data['writers2'] = User::where('flag', 0)->where('role_id', 7)->get(['id', 'name']);
+        }
+
+        // Clear selected writers when TL changes
+        $this->selectedWriters = [];
+
+        return $data['writers2'];
+    }
     public function resetTLId()
     {
-        $this->tl_id = '';
+        $this->tl_id_edit = '';
     }
 
     public function render()
@@ -210,6 +228,7 @@ class OrderComponent extends Component
         $data['tl'] = User::where('role_id', 6)->where('flag', 0)->where('admin_id' , auth()->user()->id)->orderBy('created_at', 'desc')->get(['id', 'name']);
         // $data['writers'] = User::where('flag', 0)->where('role_id' , 7)->get(['id' , 'name' , 'admin_id']);
         $data['writers'] = $this->filterSubWriters();
+        $data['writers2'] = $this->filterSubWritersEdit();
         return view('livewire.order-component', compact('data'));
     }
     

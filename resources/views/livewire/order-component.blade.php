@@ -285,7 +285,7 @@
                                                         <div class="row d-flex align-items-center">
                                                             <div class="col-md-12">
                                                                 <div class="form-group has-success">
-                                                                    <select wire:model="tl_id" wire:change="filterSubWriters" class="form-control form-select mt-3" id="writer-tl{{ $order->id }}">
+                                                                    <select wire:model="tl_id_edit" wire:change="filterSubWritersEdit" class="form-control form-select mt-3" id="writer-tl{{ $order->id }}">
                                                                         <option value="">Select TL</option>
                                                                         @foreach($data['tl'] as $tl)
                                                                         <option value="{{ $tl->id }}">{{ $tl->name }}</option>
@@ -301,7 +301,7 @@
                                                                         Select
                                                                     </button>
                                                                     <ul style="width: 100%; max-height: 30vh; overflow-y: auto;" class="dropdown-menu striped-list" aria-labelledby="multiSelectDropdown{{ $order->order_id }}">
-                                                                        @foreach($data['writers'] as $writer)
+                                                                        @foreach($data['writers2'] as $writer)
                                                                             @php
                                                                                 $user_ids = $order->multiple ? $order->multiple->pluck('user_id')->toArray() : [];
                                                                                 $isChecked = in_array($writer->id, $user_ids) ? 'checked' : '';
