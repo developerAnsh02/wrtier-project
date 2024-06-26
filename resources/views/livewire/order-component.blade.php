@@ -139,7 +139,11 @@
                 </div>
             </div>
         </div>
+        <div class="col-12 edit-form">
+          
+        </div>
         <div class="col-12">
+            
             <div class="card">
                 <div class="card-body">
                     <div class="table-responsive table-card">
@@ -251,7 +255,7 @@
 										@endif
                                     </td>
                                     <td class="text-nowrap" >
-                                        <button type="button" data-bs-toggle="modal" data-bs-target="#editModal{{$order->order_id}}" wire:click="" class="btn btn-sm btn-light-primary"><li class="fa fa-edit"> </li></button>
+                                    <button onclick=" getForm({{$order->id}})">ff</button>
                                     </td>
                                 </tr>
                                     <!-- Edit Order Modal Start -->
@@ -469,4 +473,6 @@
             </div>
         </div>
     </div>
+    @include('order.action.ajax_all_admin_order')
+
 </div>

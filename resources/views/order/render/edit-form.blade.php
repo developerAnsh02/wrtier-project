@@ -23,6 +23,15 @@
                     <label for="writer_ud_h" class="form-label">Writer UD Hour</label>
                     <input type="time" value="{{ $data['orderdata']->writer_ud_h }}" id="upto_date_time{{ $data['orderdata']->id }}" name="writer_ud_h" class="form-control form-control-solid form-select-lg">
                 </div>
+                <div class="col-md-3 fv-row">
+                    <label for="writer_ud_h" class="form-label">Select Tl</label>
+                    <select class="form-control form-select mt-3" >
+                        <option value="">Select TL</option>
+                            @foreach($data['tl'] as $tl)
+                                <option value="{{ $tl->id }}" >{{ $tl->name }}</option>
+                            @endforeach
+                    </select>                
+                </div>
             </div>
             <div class="row mb-2">
                 <div class="col-md-3 fv-row">
