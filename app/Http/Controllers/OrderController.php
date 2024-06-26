@@ -15,6 +15,9 @@ class OrderController extends Controller
 
     public function order()
     {
+        if (auth()->user()->role_id == 6) {
+            return view('WriterTeamLeader.order-tl');
+        }
         $data['order'] = Order::with(['writer:id,name', 'subwriter:id,name','mulsubwriter' => function ($query) {$query->with('user:id,name');}])
         ->where('admin_id', auth()->user()->id)->orderBy('id', 'desc')
         ->select([
