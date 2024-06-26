@@ -53,30 +53,86 @@ class OrderController extends Controller
 
     }
 
-    public function update_order(Request $req, $id)
-    {
-             $order = Order::find($id);
-             $order->writer_status = $req->input('status'); 
-              $order->wid = $req->input('tlid');
-            // $order->writer_fd = $req->input('fromdate');
-            // $order->writer_ud = $req->input('uptodate'); 
-            // $order->writer_fd_h = $req->input('writer_fd_half'); 
-            // $order->writer_ud_h = $req->input('writer_ud_half'); 
-            $order->save();
 
-            return response()->json([
-                'status' => 'success'
-            ]);
+ // Controller method
+public function editform($id)
+{
+    $data['orderdata'] = Order::with([
+            'writer:id,name',
+            'subwriter:id,name',
+            'mulsubwriter' => function ($query) {
+                $query->with('user:id,name');
+            }
+        ])
+        ->where('id', $id)
+        ->select([
+            'id', 'order_id', 'wid', 'writer_status',
+            'writer_fd', 'writer_ud', 'writer_ud_h', 'writer_fd_h'
+        ])
+        ->first();
 
-            // $subwriterIds = $req->input('subwriterSelect');
-            // multipleswiter::where('order_id', $id)->delete();
-            // foreach ($subwriterIds as $subwriterId) {
-            //     $writer = new multipleswiter;
-            //     $writer->order_id = $id;
-            //     $writer->user_id = $subwriterId;
-            //     $writer->save();
-            // }
+    $data['order'] = Order::with([
+            'writer:id,name',
+            'subwriter:id,name',
+            'mulsubwriter' => function ($query) {
+                $query->with('user:id,name');
+            }
+        ])
+        ->where('admin_id', auth()->user()->id)
+        ->orderBy('id', 'desc')
+        ->select([
+            'id', 'order_id', 'services', 'typeofpaper', 'pages', 'title',
+            'writer_deadline', 'chapter', 'wid', 'swid', 'writer_status',
+            'writer_fd', 'writer_ud', 'writer_ud_h', 'writer_fd_h',
+            'resit', 'tech'
+        ])
+        ->paginate(10);
+
+    $data['tl'] = User::where('role_id', 6)
+        ->where('flag', 0)
+        ->where('admin_id', auth()->user()->id)
+        ->orderBy('created_at', 'desc')
+        ->get(['id', 'name']);
+
+    $data['writer'] = User::where('flag', 0)
+        ->where('role_id', 7)
+        ->get(['id', 'name', 'admin_id']);
+
+    return view('order.render.edit-form', compact('data'))->render();
+}
+
+
+
+
+
+public function update(Request $request, $id)
+{
+    $request->validate([
+        'fromdate' => 'required|date',
+        'fromdate_time' => 'required|date_format:H:i',
+        'uptodate' => 'required|date',
+        'uptodate_time' => 'required|date_format:H:i',
+    ]);
+
+    try {
+        $order = Order::findOrFail($id);
+        $order->writer_fd = $request->fromdate;
+        $order->writer_fd_h = $request->fromdate_time;
+        $order->writer_ud = $request->uptodate;
+        $order->writer_ud_h = $request->uptodate_time;
+        $order->save();
+
+        return response()->json([
+            'message' => 'Order updated successfully',
+            'order' => $order
+        ], 200);
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => 'An error occurred while updating the order.',
+            'details' => $e->getMessage()
+        ], 500);
     }
+}
 
 
     public function edit(Request $request , $id)

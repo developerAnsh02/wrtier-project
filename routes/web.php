@@ -82,8 +82,10 @@ Route::middleware('auth')->group(function ()
     Route::get('/order' , [OrderController::class, 'order'])->name('order');
     Route::get('/search-writer-order', [UserController::class, 'searchWriterOrder'])->name('search.writer-order');
     Route::get('/order/paginate-data', [OrderController::class, 'pagination']);
-    Route::put('/order/{id}' , [OrderController::class, 'update_order'])->name('order.update');
     Route::get('/order/{id}', [OrderController::class, 'edit']);
+    Route::get('/order-form/{id}', [OrderController::class, 'editform']);
+    Route::put('/order/{id}', [OrderController::class, 'update'])->name('order.update');
+
 
     // livewire
     //Qc

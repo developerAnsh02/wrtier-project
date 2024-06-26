@@ -13,14 +13,20 @@
                 </ol>
             </div>
         </div>
+
     </div>
     <div class="row">
+        <div class="col-12 edit-form">
+          
+        </div>
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
+              
                     <h4 class="card-title ">Order Date</h4>
                     <div class="table-responsive table-card">
                         <table class="table table-striped">
+
                             <thead>
                                 <tr>
                                     <th>SR NO</th>
@@ -34,6 +40,7 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                
                                 @foreach($data['order'] as  $key => $order)
                                 <tr>
                                     <td>{{ $key +1  }} </td>
@@ -95,10 +102,7 @@
                                     </td>
                                 
                                     <td class="text-nowrap" >
-                                        <a data-bs-toggle="modal"class="model_img img-responsive" data-bs-target="#tooltipmodals{{$order->id}}"  data-bs-toggle="tooltip" data-original-title="Edit"> <i class="fa fa-pencil text-inverse m-r-10"></i> </a>
-                                        <a href="javascript:void(0)" data-bs-toggle="tooltip" data-original-title="Close"> <i class="fa fa-eye text-danger"></i> </a>
-                                        @include('order.component.edit-form')
-                                        
+                                        <button onclick=" getForm({{$order->id}})">ff</button>
                                     </td>
                                 </tr>
                                 @endforeach

@@ -340,79 +340,7 @@
                                                                     <option value="Good">Good</option>
                                                                 </select>
                                                             </div>
-<!-- <div class="dropdown"> 
-    <button class="btn btn-success dropdown-toggle" 
-            type="button" 
-            id="multiSelectDropdown{{ $order->order_id }}" 
-            data-bs-toggle="dropdown" 
-            aria-expanded="false"> 
-        Select 
-    </button> 
-    <ul class="dropdown-menu striped-list" 
-        aria-labelledby="multiSelectDropdown{{ $order->order_id }}"> 
-        <li> 
-          <label> 
-            <input type="checkbox" 
-                   value="Java" 
-                   class="order-checkbox" 
-                   data-order-id="{{ $order->order_id }}"> 
-                Java 
-            </label> 
-        </li> 
-        <li> 
-          <label> 
-            <input type="checkbox" 
-                   value="C++" 
-                   class="order-checkbox" 
-                   data-order-id="{{ $order->order_id }}"> 
-                C++ 
-            </label> 
-        </li> 
-        <li> 
-          <label> 
-            <input type="checkbox" 
-                   value="Python" 
-                   class="order-checkbox" 
-                   data-order-id="{{ $order->order_id }}"> 
-                Python 
-            </label> 
-        </li> 
-    </ul> 
-</div> 
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"> 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script> 
-
-<style>
-    .striped-list li:nth-child(odd) {
-        background-color: #A9CCE3; /* Light grey background for odd items */
-    }
-    .striped-list li:nth-child(even) {
-        background-color: #e9ecef; /* Slightly darker grey background for even items */
-    }
-</style>
-
-<script> 
-    document.addEventListener('DOMContentLoaded', function () {
-        const chBoxes = document.querySelectorAll('.dropdown-menu input[type="checkbox"]'); 
-        chBoxes.forEach((checkbox) => { 
-            checkbox.addEventListener('change', handleCB); 
-        }); 
-
-        function handleCB(event) { 
-            const orderId = event.target.getAttribute('data-order-id');
-            const dpBtn = document.getElementById('multiSelectDropdown' + orderId); 
-            let selectedItems = []; 
-            document.querySelectorAll('.order-checkbox[data-order-id="' + orderId + '"]').forEach((checkbox) => { 
-                if (checkbox.checked) { 
-                    selectedItems.push(checkbox.value); 
-                } 
-            }); 
-
-            dpBtn.innerText = selectedItems.length > 0 ? selectedItems.join(', ') : 'Select'; 
-        } 
-    });
-</script> -->
                                                         </div>
 
                                                         <div class="row g-9 mb-8 text-start">
