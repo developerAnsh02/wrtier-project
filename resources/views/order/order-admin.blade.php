@@ -87,7 +87,7 @@
 
                                         @elseif($order->swid)
                                                 <div class="label label-table label-info">
-                                                    @if(order->subwriter && $order->subwriter->name)
+                                                    @if($order->subwriter && $order->subwriter->name)
                                                         {{$order->subwriter->name}}
                                                     @endif
                                                 </div>
@@ -98,6 +98,7 @@
                                         <a data-bs-toggle="modal"class="model_img img-responsive" data-bs-target="#tooltipmodals{{$order->id}}"  data-bs-toggle="tooltip" data-original-title="Edit"> <i class="fa fa-pencil text-inverse m-r-10"></i> </a>
                                         <a href="javascript:void(0)" data-bs-toggle="tooltip" data-original-title="Close"> <i class="fa fa-eye text-danger"></i> </a>
                                         @include('order.component.edit-form')
+                                        
                                     </td>
                                 </tr>
                                 @endforeach
