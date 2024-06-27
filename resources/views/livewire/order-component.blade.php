@@ -473,6 +473,5 @@
             </div>
         </div>
     </div>
-    @include('order.action.ajax_all_admin_order')
 
 </div>
