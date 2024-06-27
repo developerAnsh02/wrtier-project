@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\User;
+use App\Models\Multipleswiter;
 
 
 
@@ -112,6 +113,9 @@ public function update(Request $request, $id)
         'fromdate_time' => 'required|date_format:H:i',
         'uptodate' => 'required|date',
         'uptodate_time' => 'required|date_format:H:i',
+        'tl_id' => 'required',
+        'status' => 'required',
+        'writers' => 'array|required'
     ]);
 
     try {
@@ -120,7 +124,18 @@ public function update(Request $request, $id)
         $order->writer_fd_h = $request->fromdate_time;
         $order->writer_ud = $request->uptodate;
         $order->writer_ud_h = $request->uptodate_time;
+        $order->wid = $request->tl_id;
+        $order->writer_status = $request->status;  // Update the status
         $order->save();
+
+        // Handle updating the selected writers
+        Multipleswiter::where('order_id', $id)->delete();
+        foreach ($request->writers as $writerId) {
+            $writer = new Multipleswiter;
+            $writer->order_id = $id;
+            $writer->user_id = $writerId;
+            $writer->save();
+        }
 
         return response()->json([
             'message' => 'Order updated successfully',
