@@ -20,11 +20,16 @@ class TeamLeader extends Component
     public $mulsubwriter = [];
     public $subWriters;
     public $orderCode;
-    //filter 
+    //filter var
     public $search;
     public $filterByStatus;
     public $filterExtra;
     public $filterSubWriter;
+    public $filterFromDate;
+    public $filterToDate;
+    public $filterFromDateApply;
+    public $filterToDateApply;
+    
     public function mount()
     {
         // Fetch subwriters associated with the authenticated user
@@ -33,9 +38,23 @@ class TeamLeader extends Component
                                 ->where('tl_id', auth()->user()->id)
                                 ->get();
     }
+
     public function applyFilters()
     {
         $this->resetPage();
+        $this->filterFromDateApply = $this->filterFromDate;
+        $this->filterToDateApply = $this->filterToDate;
+    }
+
+    public function resetFilters()
+    {
+        $this->search = '';
+        $this->filterByStatus = '';
+        $this->filterExtra = '';
+        $this->filterSubWriter = '';
+        $this->filterEditedOn = '';
+        $this->filterFromDateApply = '';
+        $this->filterToDateApply = '';
     }
 
     public function render()
@@ -45,10 +64,12 @@ class TeamLeader extends Component
             
             'SubWriter' => User::where('role_id', 7)->where('flag', 0)->get(),
         ];
+
         if ($this->search) {
             $ordersQuery->where('order_id', 'like', '%' . $this->search . '%')
                 ->orWhere('title', $this->search);
         }
+
         if ($this->filterByStatus) {
             
             if ($this->filterByStatus == 'Not Assign') {
@@ -60,6 +81,7 @@ class TeamLeader extends Component
                 $ordersQuery->where('writer_status', $this->filterByStatus);
             }
         }
+
         if($this->filterExtra)
         {
             if($this->filterExtra == 'tech')
@@ -79,14 +101,31 @@ class TeamLeader extends Component
                 $ordersQuery->where('services', 'First Class Work' );                
             }
         }
+
         if ($this->filterSubWriter) {                          
             $multipleWriters = multipleswiter::where('user_id', $this->filterSubWriter)->get();            
             $orderIds = $multipleWriters->pluck('order_id')->toArray();            
             $ordersQuery->whereIn('id', $orderIds);            
         }
+        
+        if ($this->filterFromDateApply) {
+            $dateRange = explode(' - ', $this->filterFromDate);
+            $startDate = date('Y-m-d', strtotime(str_replace('/', '-', $dateRange[0])));
+            $endDate = date('Y-m-d', strtotime(str_replace('/', '-', $dateRange[1])));
+            $ordersQuery->whereBetween('writer_fd', [$startDate, $endDate]);
+        }
+        
+        if ($this->filterToDateApply) {
+            $dateRange = explode(' - ', $this->filterToDate);
+            $startDate = date('Y-m-d', strtotime(str_replace('/', '-', $dateRange[0])));
+            $endDate = date('Y-m-d', strtotime(str_replace('/', '-', $dateRange[1])));
+            $ordersQuery->whereBetween('writer_ud', [$startDate, $endDate]);
+        }
+        
         $data['orders'] = $ordersQuery->where('wid', auth()->user()->id)->orderBy('order_id', 'desc')->paginate(10);
         return view('livewire.writer-team-leader.team-leader', compact('data'));
     }
+    
     public function edit($id)
     {
         $order = Order::findOrFail($id);

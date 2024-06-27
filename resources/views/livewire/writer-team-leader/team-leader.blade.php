@@ -70,34 +70,40 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="row mb-3">
-                        
+                        <div class="row mb-3">                        
                             <div class="col-md-3 fv-row">
-                                <input type="text" name="dates" value="01/01/2024 - 01/15/2024" class="form-control form-control-solid form-select-lg"/>
-
+                                <input  type="text" name="dates" value="01/01/2024 - 15/01/2024" class="form-control form-control-solid form-select-lg"/>
                                 <script>
-                                    $('input[name="dates"]').daterangepicker();
+                                    $('input[name="dates"]').daterangepicker({
+                                        locale: {
+                                            format: 'DD/MM/YYYY'
+                                        }
+                                    }, function(start, end, label) {
+                                        @this.set('filterFromDate', `${start.format('DD/MM/YYYY')} - ${end.format('DD/MM/YYYY')}`);
+                                    });
                                 </script>
                             </div>
                             <div class="col-md-3 fv-row">
-                                <input type="text" name="dates" value="01/01/2024 - 01/15/2024" class="form-control form-control-solid form-select-lg"/>
-
+                                <input type="text" name="Todates" value="01/01/2024 - 15/01/2024" class="form-control form-control-solid form-select-lg"/>
                                 <script>
-                                    $('input[name="dates"]').daterangepicker();
+                                    $('input[name="Todates"]').daterangepicker({
+                                        locale: {
+                                            format: 'DD/MM/YYYY'
+                                        }
+                                    }, function(start, end, label) {
+                                        @this.set('filterToDate', `${start.format('DD/MM/YYYY')} - ${end.format('DD/MM/YYYY')}`);
+                                    });
                                 </script>
                             </div>                        
-
                         </div>
-
                             
                         <div class="row mb-2">
                             <div class="col-md-3 fv-row">
                                 <button type="submit" class="btn btn-sm btn-primary">Search</button>
-                                <!-- <button type="button" wire:click="resetFilters" class="btn btn-sm btn-danger">Reset</button> -->
+                                <button type="button" wire:click="resetFilters" class="btn btn-sm btn-danger">Reset</button>
                             </div>
                         </div>
                     </form>
-
                     
                 </div>
             </div>
@@ -126,7 +132,8 @@
                             @foreach($data['orders'] as $index => $order)
 								<tr>
 									<td class="text-center">{{ ($data['orders'] ->currentPage() - 1) * $data['orders'] ->perPage() + $loop->index + 1 }}</td>
-									<td class="text-center">
+									
+                                    <td class="text-center">
 										{{ $order->order_id }}
 										@if($order->is_fail == 1)
 										<br><div class="label label-table label-danger m-1">Fail Order</div>
@@ -138,7 +145,8 @@
 										<br><div class="label label-table label-info m-1">First Class Work</div>
 										@endif
 									</td>
-									<td>
+									
+                                    <td>
                                         @if ($order->writer_fd && $order->writer_fd != '0000-00-00')
                                             <div class="d-flex">{{ \Carbon\Carbon::parse($order->writer_fd)->format('jS M ') }} <div style="color:red;  margin-left: 10px;">{{date('h:i A', strtotime($order->writer_fd_h))}}</div> </div> <br>
                                             <div class="d-flex">{{ \Carbon\Carbon::parse($order->writer_ud)->format('jS M ') }} <div style="color:red;  margin-left: 10px;">{{date('h:i A', strtotime($order->writer_ud_h))}}</div></div>
@@ -146,7 +154,8 @@
                                             <div class="label label-table label-danger">Not Assigned</div>
                                         @endif
 									</td>
-									<td>
+									
+                                    <td>
                                         {{$order->title }}
 										@if( $order->chapter != '' )
 										<div class="label label-table label-danger">{{$order->chapter}}</div>
@@ -200,11 +209,6 @@
                                         @endif
 									</td>
 
-
-
-
-
-
 									<td class="text-center">
                                         <button wire:click="edit({{ $order->id }})" class="btn btn-icon btn-bg-light btn-active-color-primary btn-sm me-1">
                                             <span class="svg-icon svg-icon-3">
@@ -213,10 +217,6 @@
                                         </button>
 									</td>
 
-
-									
-
-									
 								</tr>
 								@endforeach
                             </tbody>
