@@ -13,6 +13,97 @@
         </div>
     </div>
     <div class="row">
+        <div class="col-12">
+            <div class="card card-xxl-stretch mb-5 mb-xl-8">
+                <div class="card-header">
+                    <h3 class="card-title align-items-start flex-column">
+                        <span class="card-label fs-5 mb-1">Filter</span>
+                    </h3>
+                </div>
+                <div class="card-body py-3">
+                    <form wire:submit.prevent="applyFilters">
+                        <div class="row mb-3">
+                            <div class="col-md-3 fv-row">
+                                <input wire:model="search" type="search"  name="search" id="search" class="form-control form-control-solid form-select-lg" placeholder="OrderCode, Title" >
+                            </div>     
+
+                            <div class="col-lg-3 fv-row fv-plugins-icon-container">
+                                <select wire:model="filterByStatus" name="status" id="status" aria-label="Select a Language" data-control="select2" data-placeholder="Status" class="form-control form-control-solid form-select-lg" data-select2-id="select2-data-13-mh4q" tabindex="-1" >
+                                    <option value="" >Select Status</option>
+                                    <option  value="Not Assign">Not Assign</option>
+                                    <option value="In Progress" >In Progress</option>
+                                    <option value="Draft Ready" >Draft Ready</option>
+                                    <option value="Draft Feedback" >Draft Feedback</option>
+                                    <option value="Attached to Email (Draft) " >Attached to Email (Draft) </option>
+                                    <option value="Draft Delivered">Draft Delivered</option>
+                                    <option value="Complete file Ready">Complete file Ready</option>
+                                    <option value="Feedback">Feedback</option>
+                                    <option value="Feedback Delivered">Feedback Delivered</option>
+                                    <option value="Attached to Email (Complete file) ">Attached to Email (Complete file) </option>
+                                    <option value="Delivered" >Delivered</option>
+                                    <option value="Hold">Hold</option>
+                                </select>
+                                <div class="fv-plugins-message-container invalid-feedback"></div>
+                            </div>
+                        
+                            <div class="col-lg-3 fv-row fv-plugins-icon-container">
+                                <select wire:model="filterSubWriter" name="SubWriter" id="SubWriter" aria-label="Select a Timezone" data-placeholder="Search By Writer TL" class="form-control form-control-solid form-select-lg" tabindex="-1">
+                                    <option value="">Select Writer Name</option>
+                                    @foreach($data['SubWriter'] as $Subwriter)
+                                        @if($Subwriter->tl_id == Auth::user()->id)
+                                        <option value="{{ $Subwriter->id }}">{{ $Subwriter->name }}</option>
+                                        @endif
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="col-lg-3 fv-row fv-plugins-icon-container">
+                                <select wire:model="filterExtra" name="extra" id="extra" aria-label="Select a Timezone" data-control="select2" data-placeholder="Search By Tech Resit Failed Job" class="form-control form-control-solid form-select-lg" tabindex="-1">
+                                    <option value="">Extra</option>
+                                    <!-- Option for Tech -->
+                                    <option value="tech" >Tech</option>
+                                    <!-- Option for Resit -->
+                                    <option value="resit" >Resit</option>
+                                    <!-- Option for Failed Job -->
+                                    <option value="1" >First Class Work</option>
+                                    <option value="failedjob">Failed Job</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                        
+                            <div class="col-md-3 fv-row">
+                                <input type="text" name="dates" value="01/01/2024 - 01/15/2024" class="form-control form-control-solid form-select-lg"/>
+
+                                <script>
+                                    $('input[name="dates"]').daterangepicker();
+                                </script>
+                            </div>
+                            <div class="col-md-3 fv-row">
+                                <input type="text" name="dates" value="01/01/2024 - 01/15/2024" class="form-control form-control-solid form-select-lg"/>
+
+                                <script>
+                                    $('input[name="dates"]').daterangepicker();
+                                </script>
+                            </div>                        
+
+                        </div>
+
+                            
+                        <div class="row mb-2">
+                            <div class="col-md-3 fv-row">
+                                <button type="submit" class="btn btn-sm btn-primary">Search</button>
+                                <!-- <button type="button" wire:click="resetFilters" class="btn btn-sm btn-danger">Reset</button> -->
+                            </div>
+                        </div>
+                    </form>
+
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
         
         <div class="col-12">
             <div class="card">
@@ -27,7 +118,7 @@
                                     <th>Title</th>
                                     <th>Status</th>
                                     <th>Words</th>
-                                    <th>Writer&TL</th>
+                                    <th>TL&Writer</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -146,6 +237,11 @@
                     </div>
                     <div class="modal-body">
                         <form>
+                            <div class="row g-9 text-center">
+                                <div class="col pb-4">
+                                    <div class="btn w-100 btn-outline-secondary p-2">{{ $orderCode }}</div>
+                                </div>
+                            </div>
                             <div class="form-group">
                                 <label for="status">Status</label>
                                 <select id="status" wire:model="status" class="form-control">
@@ -155,15 +251,68 @@
                                     
                                 </select>
                             </div>
-                            <div class="mb-3">
-                                <label for="mulsubwriter" class="form-label">Multiple Subwriters</label>
-                                <select class="form-control" id="mulsubwriter" wire:model="mulsubwriter" multiple>
+                            <div class="dropdown mb-3">
+                                <label for="mulsubwriter" class="form-label">Subwriters</label>
+                                <button type="button" class="form-control">Select Subwriters</button>
+                                <div class="dropdown-content p-2">
                                     @foreach($subWriters as $subWriter)
-                                        <option value="{{ $subWriter->id }}">{{ $subWriter->name }}</option>
+                                    <label><input type="checkbox" name="mulsubwriter[]" value="{{ $subWriter->id }}" wire:model="mulsubwriter"> {{ $subWriter->name }}</label>
                                     @endforeach
-                                </select>
+                                </div>
                                 @error('mulsubwriter') <span class="text-danger">{{ $message }}</span> @enderror
                             </div>
+                            <style>
+                            .dropdown {
+                            position: relative;
+                            display: inline-block;
+                            }
+
+                            .dropdown-content {
+                            display: none;
+                            position: absolute;
+                            background-color: #f9f9f9;
+                            min-width: 160px;
+                            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+                            z-index: 1;
+                            }
+
+                            .dropdown-content label {
+                            display: block;
+                            margin-top: 10px;
+                            }
+
+                            .dropdown:hover .dropdown-content {
+                            display: block;
+                            }
+                            </style>
+                            <script>
+                            document.addEventListener('click', function(event) {
+                            var dropdownContent = document.querySelector('.dropdown-content');
+                            var dropdownButton = document.querySelector('.dropdown button');
+                            if (!dropdownContent.contains(event.target) && !dropdownButton.contains(event.target)) {
+                                dropdownContent.style.display = 'none';
+                            } else {
+                                dropdownContent.style.display = 'block';
+                            }
+                            });
+
+                            function getSelectedSubwriters() {
+                            var checkboxes = document.querySelectorAll('.dropdown-content input[type="checkbox"]');
+                            var selectedSubwriters = [];
+                            checkboxes.forEach(function(checkbox) {
+                                if (checkbox.checked) {
+                                selectedSubwriters.push(checkbox.value);
+                                }
+                            });
+                            return selectedSubwriters;
+                            }
+
+                            // Example usage
+                            document.querySelector('.dropdown button').addEventListener('click', function() {
+                            console.log(getSelectedSubwriters());
+                            });
+                            </script>
+
                             <button type="button" wire:click.prevent="update" class="btn btn-primary">Update</button>
                         </form>
                     </div>

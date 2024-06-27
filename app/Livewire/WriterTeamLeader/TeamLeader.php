@@ -19,7 +19,12 @@ class TeamLeader extends Component
     public $status;
     public $mulsubwriter = [];
     public $subWriters;
-
+    public $orderCode;
+    //filter 
+    public $search;
+    public $filterByStatus;
+    public $filterExtra;
+    public $filterSubWriter;
     public function mount()
     {
         // Fetch subwriters associated with the authenticated user
@@ -28,16 +33,58 @@ class TeamLeader extends Component
                                 ->where('tl_id', auth()->user()->id)
                                 ->get();
     }
-
+    public function applyFilters()
+    {
+        $this->resetPage();
+    }
 
     public function render()
     {
-        $orders = Order::query();
+        $ordersQuery = Order::query();
         $data = [
             
             'SubWriter' => User::where('role_id', 7)->where('flag', 0)->get(),
         ];
-        $data['orders'] = $orders->where('wid', auth()->user()->id)->orderBy('order_id', 'desc')->paginate(10);
+        if ($this->search) {
+            $ordersQuery->where('order_id', 'like', '%' . $this->search . '%')
+                ->orWhere('title', $this->search);
+        }
+        if ($this->filterByStatus) {
+            
+            if ($this->filterByStatus == 'Not Assign') {
+                $ordersQuery->where(function($query) {
+                    $query->whereNull('writer_status')
+                            ->orWhere('writer_status', '');
+                });
+            } else {
+                $ordersQuery->where('writer_status', $this->filterByStatus);
+            }
+        }
+        if($this->filterExtra)
+        {
+            if($this->filterExtra == 'tech')
+            {
+                $ordersQuery->where('tech', '1' );
+            }
+            elseif($this->filterExtra == 'resit')
+            {
+                $ordersQuery->where('resit', 'on' );
+            }
+            elseif($this->filterExtra == 'failedjob')
+            {
+                $ordersQuery->where('is_fail', '1' );                
+            }
+            elseif($this->filterExtra == '1')
+            {
+                $ordersQuery->where('services', 'First Class Work' );                
+            }
+        }
+        if ($this->filterSubWriter) {                          
+            $multipleWriters = multipleswiter::where('user_id', $this->filterSubWriter)->get();            
+            $orderIds = $multipleWriters->pluck('order_id')->toArray();            
+            $ordersQuery->whereIn('id', $orderIds);            
+        }
+        $data['orders'] = $ordersQuery->where('wid', auth()->user()->id)->orderBy('order_id', 'desc')->paginate(10);
         return view('livewire.writer-team-leader.team-leader', compact('data'));
     }
     public function edit($id)
@@ -46,6 +93,7 @@ class TeamLeader extends Component
         $this->orderId = $order->id;
         $this->status = $order->writer_status;
         $this->mulsubwriter = $order->mulsubwriter->pluck('user_id')->toArray();
+        $this->orderCode = $order->order_id;
         $this->isEditModalOpen = true;
     }
 
