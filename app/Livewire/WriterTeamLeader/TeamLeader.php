@@ -55,6 +55,8 @@ class TeamLeader extends Component
         $this->filterEditedOn = '';
         $this->filterFromDateApply = '';
         $this->filterToDateApply = '';
+        $this->filterFromDate = '';
+        $this->filterToDate = '';
     }
 
     public function render()
@@ -125,7 +127,7 @@ class TeamLeader extends Component
         $data['orders'] = $ordersQuery->where('wid', auth()->user()->id)->orderBy('order_id', 'desc')->paginate(10);
         return view('livewire.writer-team-leader.team-leader', compact('data'));
     }
-    
+
     public function edit($id)
     {
         $order = Order::findOrFail($id);
