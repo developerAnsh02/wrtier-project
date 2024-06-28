@@ -140,10 +140,13 @@ class TeamLeader extends Component
 
     public function update()
     {
+        $customMessages = [
+            'mulsubwriter' => 'Please select at least one writer.',
+        ];
         $this->validate([
             'status' => 'required|string',
             'mulsubwriter' => 'required|array',
-        ]);
+        ], $customMessages);
 
         $order = Order::findOrFail($this->orderId);
         $order->writer_status = $this->status;

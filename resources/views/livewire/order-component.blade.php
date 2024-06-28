@@ -66,7 +66,7 @@
                             <div class="col-lg-3 fv-row">
                                 <select wire:model="filterSubWriter" name="SubWriter" id="SubWriter" class="form-select form-select-solid form-select-lg">
                                     <option value="">Select Sub Writer</option>
-                                    @foreach($data['writers'] as $writer)
+                                    @foreach($newWriter as $writer)
                                         <option value="{{ $writer->id }}">{{ $writer->name }}</option>
                                     @endforeach
                                 </select>
@@ -120,14 +120,31 @@
                                 <input wire:model="filterToDate" type="date" name="toDate" id="toDate" class="form-control form-control-solid form-select-lg" placeholder="To Date">
                             </div>
                         </div>
-                        <div class="row mb-2">
+                        <div class="row mb-3">                        
                             <div class="col-md-3 fv-row">
-                                <input type="text" name="dates" value="01/01/2024 - 01/15/2024" class="form-control form-control-solid form-select-lg"/>
-
+                                <input  type="text" name="dates" value="01/01/2024 - 15/01/2024" class="form-control form-control-solid form-select-lg"/>
                                 <script>
-                                    $('input[name="dates"]').daterangepicker();
+                                    $('input[name="dates"]').daterangepicker({
+                                        locale: {
+                                            format: 'DD/MM/YYYY'
+                                        }
+                                    }, function(start, end, label) {
+                                        @this.set('filterFromDateRange', `${start.format('DD/MM/YYYY')} - ${end.format('DD/MM/YYYY')}`);
+                                    });
                                 </script>
                             </div>
+                            <div class="col-md-3 fv-row">
+                                <input type="text" name="Todates" value="01/01/2024 - 15/01/2024" class="form-control form-control-solid form-select-lg"/>
+                                <script>
+                                    $('input[name="Todates"]').daterangepicker({
+                                        locale: {
+                                            format: 'DD/MM/YYYY'
+                                        }
+                                    }, function(start, end, label) {
+                                        @this.set('filterToDateRange', `${start.format('DD/MM/YYYY')} - ${end.format('DD/MM/YYYY')}`);
+                                    });
+                                </script>
+                            </div>                        
                         </div>
                         <div class="row mb-2">
                             <div class="col-md-3 fv-row">
@@ -139,9 +156,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 edit-form">
-          
-        </div>
+        
         <div class="col-12">
             
             <div class="card">
@@ -254,216 +269,16 @@
                                             </div>
 										@endif
                                     </td>
-                                    <td class="text-nowrap" >
-                                    <button onclick=" getForm({{$order->id}})">ff</button>
-                                    </td>
-                                </tr>
-                                    <!-- Edit Order Modal Start -->
-                                    <div wire:key="modal{{ $order->order_id }}" wire:ignore.self class="modal fade" id="editModal{{ $order->order_id }}" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <form wire:submit.prevent="updateOrder({{ $order->id }})">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="editModalLabel">Edit Order</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        @if(session()->has('message'))
-                                                            <div class="alert alert-success alert-dismissible" id="alert">
-                                                                {{ session()->get('message') }}
-                                                            </div>
-                                                        @endif
-                                                        <style>
-                                                            #alert {
-                                                            animation: fadeOut 2s forwards;
-                                                            animation-delay: 1s;
-                                                            }
-                                                            @keyframes fadeOut {
-                                                            to {
-                                                                opacity: 0;
-                                                                visibility: hidden;
-                                                            }
-                                                            }
-                                                        </style>
-                                                        <script>
-                                                            setTimeout(function() {
-                                                                document.getElementById("alert").style.display = "none";
-                                                            }, 5000); // 5000ms = 5 seconds
-                                                        </script>
-                                                        <div class="row g-9 text-center">
-                                                            <div class="col pb-2">
-                                                                <div class="btn w-100 btn-outline-secondary p-2">{{ $order->order_id }}</div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="row d-flex align-items-center">
-                                                            <div class="col-md-12">
-                                                                <div class="form-group has-success">
-                                                                    <select wire:model="tl_id_edit" wire:change="SubWritersEdit" class="form-control form-select mt-3" id="writer-tl{{ $order->id }}">
-                                                                        <option value="">Select TL</option>
-                                                                        @foreach($data['tl'] as $tl)
-                                                                        <option value="{{ $tl->id }}">{{ $tl->name }}</option>
-                                                                        @endforeach
-                                                                    </select>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="row d-flex align-items-center">
-                                                            <div class="col-md-12">
-                                                                <div class="dropdown">
-                                                                    <button style="width: 100%;" class="btn btn-success dropdown-toggle" type="button" id="multiSelectDropdown{{ $order->order_id }}" data-bs-toggle="dropdown" aria-expanded="false">
-                                                                        Select
-                                                                    </button>
-                                                                    <ul style="width: 100%; max-height: 30vh; overflow-y: auto;" class="dropdown-menu striped-list" aria-labelledby="multiSelectDropdown{{ $order->order_id }}">
-                                                                        @foreach($data['writers2'] as $writer)
-                                                                            @php
-                                                                                $user_ids = $order->multiple ? $order->multiple->pluck('user_id')->toArray() : [];
-                                                                                $isChecked = in_array($writer->id, $user_ids) ? 'checked' : '';
-                                                                            @endphp
-                                                                            <li>
-                                                                                <label>
-                                                                                    <input type="checkbox" wire:model="selectedWriters" value="{{ $writer->id }}" class="order-checkbox" data-order-id="{{ $order->order_id }}" {{ $isChecked }}>
-                                                                                    {{ $writer->name }}
-                                                                                </label>
-                                                                            </li>
-                                                                        @endforeach
-                                                                    </ul>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        <style>
-                                                            .striped-list li:nth-child(odd) {
-                                                                background-color: #A9CCE3;
-                                                            }
-
-                                                            .striped-list li:nth-child(even) {
-                                                                background-color: #e9ecef;
-                                                            }
-                                                        </style>
-
-                                                        <script>
-                                                            document.addEventListener('DOMContentLoaded', function () {
-                                                                const chBoxes = document.querySelectorAll('.dropdown-menu input[type="checkbox"]');
-                                                                chBoxes.forEach((checkbox) => {
-                                                                    checkbox.addEventListener('change', handleCB);
-                                                                });
-
-                                                                function handleCB(event) {
-                                                                    const orderId = event.target.getAttribute('data-order-id');
-                                                                    const dpBtn = document.getElementById('multiSelectDropdown' + orderId);
-                                                                    const selectedItems = [];
-                                                                    document.querySelectorAll('.order-checkbox[data-order-id="' + orderId + '"]').forEach((checkbox) => {
-                                                                        if (checkbox.checked) {
-                                                                            selectedItems.push(checkbox.parentElement.textContent.trim());
-                                                                        }
-                                                                    });
-
-                                                                    // Limit the displayed text length to avoid overflow
-                                                                    const maxLength = 50; // Adjust as needed
-                                                                    dpBtn.innerText = selectedItems.length > 0 ? truncate(selectedItems.join(', '), maxLength) : 'Select';
-                                                                }
-
-                                                                // Function to truncate text
-                                                                function truncate(text, maxLength) {
-                                                                    return text.length > maxLength ? text.substring(0, maxLength - 3) + '...' : text;
-                                                                }
-
-                                                                // Function to reset TL dropdown and update writer button text when modal closes
-                                                                function resetTLDropdown(modalId) {
-                                                                    const modal = document.getElementById(modalId);
-                                                                    if (modal) {
-                                                                        const tlDropdown = modal.querySelector('select[id^="writer-tl"]');
-                                                                        if (tlDropdown) {
-                                                                            tlDropdown.value = "";
-                                                                            // Trigger Livewire method to reset tl_id
-                                                                            @this.call('resetTLId');
-                                                                        }
-                                                                        modal.querySelectorAll('.dropdown-menu input[type="checkbox"]').forEach((checkbox) => {
-                                                                            checkbox.checked = false;
-                                                                        });
-                                                                        document.querySelectorAll('.order-checkbox[data-order-id="' + modalId + '"]').forEach((checkbox) => {
-                                                                            handleCB({ target: checkbox });
-                                                                        });
-                                                                    }
-                                                                }
-
-                                                                // Attach event listener to modal close event
-                                                                document.querySelectorAll('.modal').forEach((modal) => {
-                                                                    modal.addEventListener('hidden.bs.modal', function () {
-                                                                        resetTLDropdown(modal.id);
-                                                                    });
-                                                                });
-
-                                                                // Function to clear selected writers when TL changes
-                                                                function clearWritersOnTLChange() {
-                                                                    document.querySelectorAll('.dropdown-menu input[type="checkbox"]').forEach((checkbox) => {
-                                                                        checkbox.checked = false;
-                                                                    });
-                                                                    chBoxes.forEach((checkbox) => handleCB({ target: checkbox }));
-                                                                }
-
-                                                                // Attach event listener to TL dropdown change event
-                                                                const tlDropdowns = document.querySelectorAll('select[id^="writer-tl"]');
-                                                                tlDropdowns.forEach((tlDropdown) => {
-                                                                    tlDropdown.addEventListener('change', clearWritersOnTLChange);
-                                                                });
-                                                            });
-                                                        </script>
-
-                                                        <div class="row d-flex align-items-center">
-                                                            <div class="col-md-12">
-                                                                <div class="form-group has-success">
-                                                                    <select wire:model="status" class="form-control form-select mt-3" id="status{{ $order->id }}">
-                                                                        <option {{ $order->writer_status == '' ? 'selected' : '' }} value="">Select Status</option>
-																		<option {{ $order->writer_status == 'In progress' ? 'selected' : '' }} value="In progress">In Progress</option>
-																		<option {{ $order->writer_status == 'Completed' ? 'selected' : '' }} value="Completed">Completed</option>
-																		<option {{ $order->writer_status == 'Delivered' ? 'selected' : '' }} value="Delivered">Delivered</option>
-																		<option {{ $order->writer_status == 'Hold' ? 'selected' : '' }} value="Hold">Hold</option>
-																		<option {{ $order->writer_status == 'Draft Delivered' ? 'selected' : '' }} value="Draft Delivered">Draft Delivered</option>
-																		<option {{ $order->writer_status == 'Feedback' ? 'selected' : '' }} value="Feedback">Feedback</option>
-																		<option {{ $order->writer_status == 'Feedback Delivered' ? 'selected' : '' }} value="Feedback Delivered">Feedback Delivered</option>
-																		<option {{ $order->writer_status == 'Quality Accepted' ? 'selected' : '' }} value="Quality Accepted">Quality Accepted</option>
-																		<option {{ $order->writer_status == 'Quality Rejected' ? 'selected' : '' }} value="Quality Rejected">Quality Rejected</option>
-																	</select>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="row d-flex align-items-center">
-                                                            <div class="col-md-6">
-                                                                <div class="form-group">
-                                                                    <input wire:model="from_date" type="date" class="form-control" id="from_date{{ $order->id }}">
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-md-6">
-                                                                <div class="form-group">
-                                                                    <input wire:model="from_date_time" type="time" class="form-control" id="from_date_time{{ $order->id }}">
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="row d-flex align-items-center">
-                                                            <div class="col-md-6">
-                                                                <div class="form-group">
-                                                                    <input wire:model="upto_date" type="date" class="form-control" id="upto_date{{ $order->id }}">
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-md-6">
-                                                                <div class="form-group">
-                                                                    <input wire:model="upto_date_time" type="time" class="form-control" id="upto_date_time{{ $order->id }}">
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="submit" data-bs-dismiss="modal" class="btn btn-primary">Save changes</button>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
                                     
-                                    <!-- Edit Order Modal End -->
+                                    <td class="text-center">
+                                        <button wire:click="edit({{ $order->id }})" class="btn btn-icon btn-bg-light btn-active-color-primary btn-sm me-1">
+                                            <span class="svg-icon svg-icon-3">
+                                                <li class="fa fa-edit"></li>
+                                            </span>
+                                        </button>
+									</td>
+                                </tr>
+                                    
                                 @endforeach
                             </tbody>
                         </table>
@@ -473,5 +288,124 @@
             </div>
         </div>
     </div>
+    @if($isEditModalOpen)
+        <div class="modal fade show" style="display: block;">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Edit Order</h5>
+                        <button type="button" wire:click="closeEditModal" class="btn-close" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form>
+                            <div class="row g-9 text-center">
+                                <div class="col pb-2">
+                                    <div class="btn w-100 btn-outline-secondary p-2">{{ $orderCode }}</div>
+                                </div>
+                            </div>
+                            <div class="row d-flex align-items-center">
+                                <div class="col-md-12">
+                                    <div class="form-group has-success">
+                                        <select wire:model="tl_id_edit" wire:change="SubWritersEdit" class="form-control form-select mt-3" id="writer-tl{{ $order->id }}">
+                                            <option value="">Select TL</option>
+                                            @foreach($modalTL as $tl)
+                                            <option value="{{ $tl->id }}">{{ $tl->name }}</option>
+                                            @endforeach
+                                        </select>
+                                        @error('tl_id_edit') <span class="text-danger">{{ $message }}</span> @enderror
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row d-flex align-items-center">
+                                <div class="col-md-12">
+                                    <div class="dropdown">
+                                        <button style="width: 100%;" class="btn btn-success dropdown-toggle" type="button" id="multiSelectDropdown{{ $order->order_id }}" data-bs-toggle="dropdown" aria-expanded="false">
+                                            Select
+                                        </button>
+                                        <ul style="width: 100%; max-height: 30vh; overflow-y: auto;" class="dropdown-menu striped-list" aria-labelledby="multiSelectDropdown{{ $order->order_id }}">
+                                            @if(!$tl_id_edit)
+                                                <li>
+                                                    <label>
+                                                        <input type="checkbox" value="" class="order-checkbox">
+                                                        Select a TL for writer
+                                                    </label>
+                                                </li>
+                                            @endif
+                                            @foreach($modalWriter as $writer)
+                                                @php
+                                                    $user_ids = $order->multiple ? $order->multiple->pluck('user_id')->toArray() : [];
+                                                    $isChecked = in_array($writer->id, $user_ids) ? 'checked' : '';
+                                                @endphp
+                                                <li>
+                                                    <label>
+                                                        <input type="checkbox" wire:model="selectedWriters" value="{{ $writer->id }}" class="order-checkbox" data-order-id="{{ $order->order_id }}" {{ $isChecked }}>
+                                                        {{ $writer->name }}
+                                                    </label>
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                    @error('selectedWriters') <span class="text-danger">{{ $message }}</span> @enderror
+                                </div>
+                            </div>
+
+                            <style>
+                                .striped-list li:nth-child(odd) {
+                                    background-color: #A9CCE3;
+                                }
+
+                                .striped-list li:nth-child(even) {
+                                    background-color: #e9ecef;
+                                }
+                            </style>
+                    
+                            <div class="form-group mt-3">
+                                <label for="status">Status</label>
+                                <select id="status" wire:model="status" class="form-control">
+                                    <option value="">Select Status</option>
+                                    <option value="Not Assigned">Not Assigned</option>
+                                    <option value="In progress">In Progress</option>
+                                    <option value="Draft Ready">Draft Ready</option>
+                                    <option value="Draft Delivered">Draft Delivered</option>
+                                    <option value="Complete file Ready">Complete file Ready</option>
+                                    <option value="Feedback">Feedback</option>
+                                    <option value="Delivered">Delivered</option>
+                                    <option value="Hold">Hold</option>                                    
+                                </select>
+                            </div>
+
+                            <div class="row d-flex align-items-center">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <input wire:model="from_date" type="date" class="form-control" id="from_date{{ $order->id }}">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <input wire:model="from_date_time" type="time" class="form-control" id="from_date_time{{ $order->id }}">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row d-flex align-items-center">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <input wire:model="upto_date" type="date" class="form-control" id="upto_date{{ $order->id }}">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <input wire:model="upto_date_time" type="time" class="form-control" id="upto_date_time{{ $order->id }}">
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" wire:click.prevent="updateOrder" class="btn btn-primary">Update</button>                    
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-backdrop fade show"></div>
+    @endif
 
 </div>

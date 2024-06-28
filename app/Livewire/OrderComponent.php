@@ -13,138 +13,83 @@ class OrderComponent extends Component
     use WithPagination;
 
     protected $paginationTheme = 'bootstrap';
-    public $tl_id;
-    public $tl_id_edit;
     
-    public $order;
+    // modal var
+    public $isEditModalOpen = false;
+    public $order; //for edit modal
+    public $orderCode;
+    public $orderId;
+    public $tl_id_edit;    
     public $status;
+    public $modalTL = [];
+    public $modalWriter = [];
+    public $selectedWriters = [];
     public $from_date;
     public $from_date_time;
     public $upto_date;
     public $upto_date_time;
-    public $selectedWriters = [];
     
+    // filter
+    public $search;
+    public $tl_id;
+    public $filter_tl_id;
     public $filterSubWriter;
-    
     public $filterExtra;
     public $filterStatus;
     public $filterEditedOn;
     public $filterFromDate;
     public $filterToDate;
-    public $search;
-    // Mount method to initialize component properties
+    public $newWriter = [];
+    public $filterFromDateRange;
+    public $filterToDateRange;
+    public $filterFromDateRangeApply;
+    public $filterToDateRangeApply;
+    
     public function mount()
     {
         $this->resetFilters();
+        $this->filterSubWriters();
     }
+    
+    public function filterSubWriters()
+    {
+        if ($this->tl_id) {
+            $this->newWriter  = User::where('flag', 0)
+                ->where('role_id', 7)
+                ->where('tl_id', $this->tl_id)
+                ->get(['id', 'name']);
+        } else {
+            $this->newWriter  = User::where('flag', 0)->where('role_id', 7)->get(['id', 'name']);
+        }
+
+        $this->filterSubWriter = '';
+    }
+    
     public function resetFilters()
     {
         $this->tl_id = '';
+        $this->filter_tl_id = '';
         $this->filterSubWriter = '';
+        $this->filterSubWriters();
         $this->filterExtra = '';
         $this->filterStatus = '';
         $this->filterEditedOn = '';
         $this->filterFromDate = '';
         $this->filterToDate = '';
         $this->search = '';
+        $this->filterFromDateRangeApply = '';
+        $this->filterToDateRangeApply = '';
+        $this->filterFromDateRange = '';
+        $this->filterToDateRange = '';
     }
+
     public function applyFilters()
     {
         $this->resetPage();
-    }
-
-    // Livewire method to update the order
-    public function updateOrder($orderId)
-    {
-        $order = Order::findOrFail($orderId);
-        // dd([
-        //     'orderId' => $orderId,
-        //     'tl_id' => $this->tl_id_edit,
-        //     'status' => $this->status,
-        //     'from_date' => $this->from_date,
-        //     'upto_date' => $this->upto_date,
-        //     'from_date_time' => $this->from_date_time,
-        //     'upto_date_time' => $this->upto_date_time,
-        //     'selectedWriters' => $this->selectedWriters,
-        // ]);
-        // $this->validate();
-        // Update the field name
-        $order->writer_status = $this->status;
-        $order->wid = $this->tl_id_edit;
-        $order->writer_fd = $this->from_date;
-        $order->writer_ud = $this->upto_date;
-        $order->writer_fd_h = $this->from_date_time;
-        $order->writer_ud_h = $this->upto_date_time;
-        $order->save();
-        if (!empty($this->selectedWriters)) {
-            // Delete existing entries with the same order_id
-            multipleswiter::where('order_id', $orderId)->delete();
-            
-            // Insert new entries
-            foreach ($this->selectedWriters as $subwriterId) {
-                $writer = new multipleswiter;
-                $writer->order_id = $orderId;
-                $writer->user_id = $subwriterId;
-                $writer->save();
-            }
-        }
-        
-        // Clear form fields and selected writers
-        $this->status = null;
-        $this->from_date = null;
-        $this->from_date_time = null;
-        $this->upto_date = null;
-        $this->upto_date_time = null;
-        $this->selectedWriters = [];
-
-        // $this->resetPage();
-        
-
-        // Flash success message
-        session()->flash('message', 'Order updated successfully.');
-
-        
-    }
-
-    public function filterSubWriters()
-    {
-        if ($this->tl_id) {
-            $data['writers'] = User::where('flag', 0)
-                ->where('role_id', 7)
-                ->where('tl_id', $this->tl_id)
-                ->get(['id', 'name']);
-        } else {
-            $data['writers'] = User::where('flag', 0)->where('role_id', 7)->get(['id', 'name']);
-        }
-
-        // Clear selected writers when TL changes
-        // $this->selectedWriters = [];
-        $this->filterSubWriter = '';
-
-        return $data['writers'];
-    }
-    public function SubWritersEdit()
-    {
-        if ($this->tl_id_edit) {
-            $data['writers2'] = User::where('flag', 0)
-                ->where('role_id', 7)
-                ->where('tl_id', $this->tl_id_edit)
-                ->get(['id', 'name']);
-        } else {
-            $data['writers2'] = User::where('flag', 0)->where('role_id', 7)->get(['id', 'name']);
-        }
-
-        // Clear selected writers when TL changes
-        $this->selectedWriters = [];
-
-        return $data['writers2'];
-    }
-    public function resetTLId()
-    {
-        // $this->tl_id = '';
-        $this->tl_id_edit = '';
-        // $this->resetFilters();
-    }
+        $this->filter_tl_id = $this->tl_id;
+        $this->filterFromDateRangeApply = $this->filterFromDateRange;
+        $this->filterToDateRangeApply = $this->filterToDateRange;
+    }    
 
     public function render()
     {
@@ -216,8 +161,8 @@ class OrderComponent extends Component
             }
         }
         
-        if ($this->tl_id) {
-            $ordersQuery->where('wid', $this->tl_id);
+        if ($this->filter_tl_id) {
+            $ordersQuery->where('wid', $this->filter_tl_id);
         }
 
         if ($this->filterSubWriter) {                          
@@ -226,12 +171,176 @@ class OrderComponent extends Component
             $ordersQuery->whereIn('id', $orderIds);            
         }
         
+        if ($this->filterFromDateRangeApply) {
+            $dateRange = explode(' - ', $this->filterFromDateRange);
+            $startDate = date('Y-m-d', strtotime(str_replace('/', '-', $dateRange[0])));
+            $endDate = date('Y-m-d', strtotime(str_replace('/', '-', $dateRange[1])));
+            $ordersQuery->whereBetween('writer_fd', [$startDate, $endDate]);
+        }
+        
+        if ($this->filterToDateRangeApply) {
+            $dateRange = explode(' - ', $this->filterToDateRange);
+            $startDate = date('Y-m-d', strtotime(str_replace('/', '-', $dateRange[0])));
+            $endDate = date('Y-m-d', strtotime(str_replace('/', '-', $dateRange[1])));
+            $ordersQuery->whereBetween('writer_ud', [$startDate, $endDate]);
+        }
+
         $data['order'] = $ordersQuery->paginate(10);
         $data['tl'] = User::where('role_id', 6)->where('flag', 0)->where('admin_id' , auth()->user()->id)->orderBy('created_at', 'desc')->get(['id', 'name']);
-        // $data['writers'] = User::where('flag', 0)->where('role_id' , 7)->get(['id' , 'name' , 'admin_id']);
-        $data['writers'] = $this->filterSubWriters();
-        $data['writers2'] = $this->SubWritersEdit();
+        
         return view('livewire.order-component', compact('data'));
+    }
+
+    public function edit($id)
+    {
+        $order = Order::findOrFail($id);
+        $this->orderId = $order->id;
+        $this->modalTL = User::where('role_id', 6)->where('flag', 0)->where('admin_id' , auth()->user()->id)->orderBy('created_at', 'desc')->get(['id', 'name']);
+        $this->status = $order->writer_status;
+        $this->SubWritersEdit();
+
+        // $this->mulsubwriter = $order->mulsubwriter->pluck('user_id')->toArray();
+        $this->orderCode = $order->order_id;
+
+        $this->from_date = $order->writer_fd;
+        $this->upto_date = $order->writer_ud;
+        $this->from_date_time = $order->writer_fd_h;
+        $this->upto_date_time = $order->writer_ud_h;
+        $this->isEditModalOpen = true;
+    }
+    public function closeEditModal()
+    {
+        $this->isEditModalOpen = false;
+        $this->orderId = '';
+        $this->tl_id_edit = '';
+        $this->from_date = '';
+        $this->upto_date = '';
+        $this->from_date_time = '';
+        $this->upto_date_time = '';
+        $this->status = '';
+        $this->from_date = '';
+        $this->from_date_time = '';
+        $this->upto_date = '';
+        $this->upto_date_time = '';
+        $this->selectedWriters = [];
+    }
+    
+    // Livewire method to update the order
+    public function updateOrder()
+    {
+        $order = Order::findOrFail($this->orderId);
+        // dd([
+        //     'order' => $order,
+        //     'orderId' => $this->orderId,
+        //     'tl_id' => $this->tl_id_edit,
+        //     'status' => $this->status,
+        //     'from_date' => $this->from_date,
+        //     'upto_date' => $this->upto_date,
+        //     'from_date_time' => $this->from_date_time,
+        //     'upto_date_time' => $this->upto_date_time,
+        //     'selectedWriters' => $this->selectedWriters,
+        // ]);
+        $customMessages = [
+            'tl_id_edit.required' => 'Select a TL first.',
+            'selectedWriters.required' => 'Please select at least one writer.',
+        ];
+
+        $this->validate([
+            'tl_id_edit' => 'required|string',
+            'selectedWriters' => 'required|array',
+        ], $customMessages);
+        // Update the field name
+        // $order->writer_status = $this->status;
+        // $order->wid = $this->tl_id_edit;
+        // $order->writer_fd = $this->from_date;
+        // $order->writer_ud = $this->upto_date;
+        // $order->writer_fd_h = $this->from_date_time;
+        // $order->writer_ud_h = $this->upto_date_time;
+        // $order->save();
+        $updateNeeded = false;
+
+        if ($this->status != '') {
+            $order->writer_status = $this->status;
+            $updateNeeded = true;
+        }
+
+        if ($this->tl_id_edit != '') {
+            $order->wid = $this->tl_id_edit;
+            if (empty($this->selectedWriters)) {
+                // Delete existing entries with the same order_id
+                multipleswiter::where('order_id', $this->orderId)->delete();
+            }
+            $updateNeeded = true;
+        }
+
+        if ($this->from_date != '') {
+            $order->writer_fd = $this->from_date;
+            $updateNeeded = true;
+        }
+
+        if ($this->upto_date != '') {
+            $order->writer_ud = $this->upto_date;
+            $updateNeeded = true;
+        }
+
+        if ($this->from_date_time != '') {
+            $order->writer_fd_h = $this->from_date_time;
+            $updateNeeded = true;
+        }
+
+        if ($this->upto_date_time != '') {
+            $order->writer_ud_h = $this->upto_date_time;
+            $updateNeeded = true;
+        }
+
+        if ($updateNeeded) {
+            $order->save();
+            $updateNeeded = false;
+        }
+
+        if (!empty($this->selectedWriters)) {
+            // Delete existing entries with the same order_id
+            multipleswiter::where('order_id', $this->orderId)->delete();
+            
+            // Insert new entries
+            foreach ($this->selectedWriters as $subwriterId) {
+                $writer = new multipleswiter;
+                $writer->order_id = $this->orderId;
+                $writer->user_id = $subwriterId;
+                $writer->save();
+            }
+        }
+        
+        // Clear form fields and selected writers
+        // $this->status = null;
+        // $this->from_date = null;
+        // $this->from_date_time = null;
+        // $this->upto_date = null;
+        // $this->upto_date_time = null;
+        // $this->selectedWriters = [];
+
+        // $this->resetPage();
+        
+        $this->closeEditModal();
+        // Flash success message
+        session()->flash('message', 'Order updated successfully.');
+        $this->errorMessage = null;
+        
+    }
+
+    
+    public function SubWritersEdit()
+    {
+        if ($this->tl_id_edit) {
+            $this->modalWriter = User::where('flag', 0)
+                ->where('role_id', 7)
+                ->where('tl_id', $this->tl_id_edit)
+                ->get(['id', 'name']);
+        } else {
+            $this->modalWriter = [];
+        }
+        // Clear selected writers when TL changes
+        $this->selectedWriters = [];        
     }
     
 }
