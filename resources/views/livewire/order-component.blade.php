@@ -122,7 +122,7 @@
                         </div>
                         <div class="row mb-3">                        
                             <div class="col-md-3 fv-row">
-                                <input  type="text" name="dates" value="01/01/2024 - 15/01/2024" class="form-control form-control-solid form-select-lg"/>
+                                <input  type="text" name="dates" value="" class="form-control form-control-solid form-select-lg"/>
                                 <script>
                                     $('input[name="dates"]').daterangepicker({
                                         locale: {
@@ -134,7 +134,7 @@
                                 </script>
                             </div>
                             <div class="col-md-3 fv-row">
-                                <input type="text" name="Todates" value="01/01/2024 - 15/01/2024" class="form-control form-control-solid form-select-lg"/>
+                                <input type="text" name="Todates" value="" class="form-control form-control-solid form-select-lg"/>
                                 <script>
                                     $('input[name="Todates"]').daterangepicker({
                                         locale: {

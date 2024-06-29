@@ -61,7 +61,11 @@ class TeamLeader extends Component
 
     public function render()
     {
-        $ordersQuery = Order::query();
+        $ordersQuery = Order::where('wid', auth()->user()->id)->orderBy('order_id', 'desc')
+        ->select([
+            'id', 'order_id', 'is_fail', 'resit', 'services', 'writer_fd', 'writer_ud', 'writer_fd_h', 'writer_ud_h', 
+            'title', 'chapter', 'tech', 'writer_status', 'pages', 'wid', 'swid',
+        ]);
         $data = [
             
             'SubWriter' => User::where('role_id', 7)->where('flag', 0)->get(),
@@ -124,7 +128,8 @@ class TeamLeader extends Component
             $ordersQuery->whereBetween('writer_ud', [$startDate, $endDate]);
         }
         
-        $data['orders'] = $ordersQuery->where('wid', auth()->user()->id)->orderBy('order_id', 'desc')->paginate(10);
+        $data['orders'] = $ordersQuery->paginate(10);
+        // echo '<pre>'; print_r($data['orders']) ; exit;
         return view('livewire.writer-team-leader.team-leader', compact('data'));
     }
 

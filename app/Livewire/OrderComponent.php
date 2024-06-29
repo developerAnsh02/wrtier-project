@@ -342,5 +342,11 @@ class OrderComponent extends Component
         // Clear selected writers when TL changes
         $this->selectedWriters = [];        
     }
-    
+    public function updated($field)
+    {
+        $this->validateOnly($field, [
+            'tl_id_edit' => 'required|string',
+            'selectedWriters' => 'required|array',
+        ]);
+    }
 }
