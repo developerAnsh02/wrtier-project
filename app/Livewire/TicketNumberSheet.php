@@ -31,7 +31,8 @@ class TicketNumberSheet extends Component
             ->select([
                 'id', 'order_id', 'services', 'typeofpaper', 
                 'writer_deadline', 'wid', 'swid', 'status_issue',
-                'resit', 'tech', 'feedbackissue', 'feedback_date'
+                'resit', 'tech', 'feedbackissue', 'feedback_date',
+                'feedback_ticket'
             ]);
 
         if ($this->orderCode) {

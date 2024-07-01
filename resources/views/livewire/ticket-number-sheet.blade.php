@@ -82,6 +82,9 @@
                                         <td>{{ ($orders->currentPage() - 1) * $orders->perPage() + $loop->index + 1 }}</td>
                                         <td>
                                             <b>{{$order->order_id}}</b>
+                                            @if($order->feedback_ticket)
+                                                <br><div class="label label-table label-danger">{{$order->feedback_ticket}}</div>
+                                            @endif
                                             <br>
                                             @if($order->tech == 'on')
                                                 <div class="label label-table label-success">Technical</div>
