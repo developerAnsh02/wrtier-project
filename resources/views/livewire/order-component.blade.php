@@ -309,7 +309,7 @@
                                         <select wire:model="tl_id_edit" wire:change="SubWritersEdit" class="form-control form-select mt-3" id="writer-tl{{ $order->id }}">
                                             <option value="">Select TL</option>
                                             @foreach($modalTL as $tl)
-                                            <option value="{{ $tl->id }}">{{ $tl->name }}</option>
+                                            <option value="{{ $tl->id }}" wire:key="tl_id_edit" >{{ $tl->name }}</option>
                                             @endforeach
                                         </select>
                                         @error('tl_id_edit') <span class="text-danger">{{ $message }}</span> @enderror
@@ -331,14 +331,10 @@
                                                     </label>
                                                 </li>
                                             @endif
-                                            @foreach($modalWriter as $writer)
-                                                @php
-                                                    $user_ids = $order->multiple ? $order->multiple->pluck('user_id')->toArray() : [];
-                                                    $isChecked = in_array($writer->id, $user_ids) ? 'checked' : '';
-                                                @endphp
+                                            @foreach($modalWriter as $writer)                                                
                                                 <li>
                                                     <label>
-                                                        <input type="checkbox" wire:model="selectedWriters" value="{{ $writer->id }}" class="order-checkbox" data-order-id="{{ $order->order_id }}" {{ $isChecked }}>
+                                                        <input type="checkbox" wire:model="selectedWriters" value="{{ $writer->id }}" class="order-checkbox" data-order-id="{{ $order->order_id }}">
                                                         {{ $writer->name }}
                                                     </label>
                                                 </li>
@@ -364,7 +360,7 @@
                                 <select id="status" wire:model="status" class="form-control">
                                     <option value="">Select Status</option>
                                     <option value="Not Assigned">Not Assigned</option>
-                                    <option value="In progress">In Progress</option>
+                                    <option value="In Progress">In Progress</option>
                                     <option value="Draft Ready">Draft Ready</option>
                                     <option value="Draft Delivered">Draft Delivered</option>
                                     <option value="Complete file Ready">Complete file Ready</option>

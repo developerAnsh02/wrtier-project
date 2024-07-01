@@ -109,9 +109,10 @@ class OrderComponent extends Component
         }
         if ($this->filterStatus) {
             
-            if ($this->filterStatus == 'Not Assign') {
+            if ($this->filterStatus == 'Not Assigned') {
                 $ordersQuery->where(function($query) {
                     $query->whereNull('writer_status')
+                        ->orWhere('writer_status', 'Not Assigned')
                             ->orWhere('writer_status', '');
                 });
             } else {
@@ -195,11 +196,16 @@ class OrderComponent extends Component
     {
         $order = Order::findOrFail($id);
         $this->orderId = $order->id;
+        $this->tl_id_edit = $order->wid;
+
         $this->modalTL = User::where('role_id', 6)->where('flag', 0)->where('admin_id' , auth()->user()->id)->orderBy('created_at', 'desc')->get(['id', 'name']);
         $this->status = $order->writer_status;
         $this->SubWritersEdit();
 
-        // $this->mulsubwriter = $order->mulsubwriter->pluck('user_id')->toArray();
+        // Fetch the collection of multiples writers for edit
+        $multipleswitersForEdit = Multipleswiter::where('order_id', $this->orderId)->get();
+        $this->selectedWriters = $multipleswitersForEdit->pluck('user_id')->toArray();
+        
         $this->orderCode = $order->order_id;
 
         $this->from_date = $order->writer_fd;
@@ -246,8 +252,8 @@ class OrderComponent extends Component
         ];
 
         $this->validate([
-            'tl_id_edit' => 'required|string',
-            'selectedWriters' => 'required|array',
+            'tl_id_edit' => 'required',
+            'selectedWriters' => 'array',
         ], $customMessages);
         // Update the field name
         // $order->writer_status = $this->status;
