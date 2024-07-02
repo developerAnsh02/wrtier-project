@@ -196,25 +196,27 @@
                                     <td>
                                         <div class="d-flex">
                                             @if($order->writer_fd && $order->writer_fd != '0000-00-00')
-                                                <div>{{ \Carbon\Carbon::parse($order->writer_fd)->format('jS M ') }} </div>                                        
+                                                <div class="label label-table label-info m-1">{{ \Carbon\Carbon::parse($order->writer_fd)->format('jS M ') }} </div>                                        
                                             @endif
                                             @if($order->writer_ud && $order->writer_ud != '0000-00-00')
-                                                <div>{{ \Carbon\Carbon::parse($order->writer_ud)->format('jS M ') }} </div>                                        
+                                                <div class="label label-table label-danger m-1">{{ \Carbon\Carbon::parse($order->writer_ud)->format('jS M ') }} </div>                                        
                                             @endif
                                         </div>
                                         <div class="d-flex">
                                             @if($order->writer_fd_h == 'First Half' || $order->writer_fd_h == 'Second Half')
-                                            <div style="color:red;">{{ $order->writer_fd_h }}</div> 
+                                            <div class="label label-table label-info m-1">{{ $order->writer_fd_h }}</div> 
                                             @elseif($order->writer_fd_h && $order->writer_fd_h != '')
-                                            <div style="color:red;">{{date('h:i A', strtotime($order->writer_fd_h))}}</div>                                        
+                                            <div class="label label-table label-info m-1">{{date('h:i A', strtotime($order->writer_fd_h))}}</div>                                        
                                             @endif
                                             @if($order->writer_ud_h == 'First Half' || $order->writer_ud_h == 'Second Half')
-                                            <div style="color:red;">{{ $order->writer_ud_h }}</div> 
+                                            <div class="label label-table label-danger m-1">{{ $order->writer_ud_h }}</div> 
                                             @elseif($order->writer_ud_h && $order->writer_ud_h != '')
-                                            <div style="color:red;">{{date('h:i A', strtotime($order->writer_ud_h))}}</div>                                        
+                                            <div class="label label-table label-danger m-1">{{date('h:i A', strtotime($order->writer_ud_h))}}</div>                                        
                                             @endif
                                         </div>
                                         @if($order->writer_fd == '' && $order->writer_ud == '' && $order->writer_fd_h == '' && $order->writer_ud_h == '')
+                                            <div class="label label-table label-danger">Not Assigned</div>
+                                        @elseif($order->writer_fd == '0000-00-00' || $order->writer_ud == '0000-00-00')
                                             <div class="label label-table label-danger">Not Assigned</div>
                                         @endif
                                     </td>
