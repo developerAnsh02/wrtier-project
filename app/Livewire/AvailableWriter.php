@@ -57,6 +57,6 @@ class AvailableWriter extends Component
             ->where('flag', 0)
             ->get(['id', 'name', 'email', 'mobile_no']);
 
-        return view('livewire.available-writer', compact('users', 'usersWithTime', 'today'));
+        return view('livewire.available-writer', compact('users', 'usersWithTime', 'filterDate'));
     }
 }

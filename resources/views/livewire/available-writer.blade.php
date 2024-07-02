@@ -59,7 +59,7 @@
                                         <td class="text-center">
                                             {{$loop->index + 1}}
                                         </td>
-                                        <td>{{$today}}</td>
+                                        <td>{{$filterDate}}</td>
                                         <td style="white-space: nowrap;">
                                             {{$writer['name']}}
                                         </td>
@@ -74,7 +74,7 @@
                                         <td class="text-center">
                                             {{$startingIndex + $loop->index}}
                                         </td>
-                                        <td>{{$today}}</td>
+                                        <td>{{$filterDate}}</td>
                                         <td style="white-space: nowrap;">
                                             {{$writer['name']}}
                                         </td>
