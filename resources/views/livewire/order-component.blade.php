@@ -122,24 +122,34 @@
                         </div>
                         <div class="row mb-3">                        
                             <div class="col-md-3 fv-row">
-                                <input  type="text" name="dates" value="" class="form-control form-control-solid form-select-lg"/>
+                                <input  type="text" name="dates" value="" placeholder="dd-mm-yyyy" class="form-control form-control-solid form-select-lg"/>
                                 <script>
+                                    var currentDate = new Date();
+                                    var currentMonthStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+                                    var currentMonthEnd = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
                                     $('input[name="dates"]').daterangepicker({
                                         locale: {
                                             format: 'DD/MM/YYYY'
-                                        }
+                                        },
+                                        startDate: currentMonthStart,
+                                        endDate: currentMonthEnd
                                     }, function(start, end, label) {
                                         @this.set('filterFromDateRange', `${start.format('DD/MM/YYYY')} - ${end.format('DD/MM/YYYY')}`);
                                     });
                                 </script>
                             </div>
                             <div class="col-md-3 fv-row">
-                                <input type="text" name="Todates" value="" class="form-control form-control-solid form-select-lg"/>
+                                <input type="text" name="Todates" value="" placeholder="dd-mm-yyyy" class="form-control form-control-solid form-select-lg"/>
                                 <script>
+                                    var currentDate = new Date();
+                                    var currentMonthStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+                                    var currentMonthEnd = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
                                     $('input[name="Todates"]').daterangepicker({
                                         locale: {
                                             format: 'DD/MM/YYYY'
-                                        }
+                                        },
+                                        startDate: currentMonthStart,
+                                        endDate: currentMonthEnd
                                     }, function(start, end, label) {
                                         @this.set('filterToDateRange', `${start.format('DD/MM/YYYY')} - ${end.format('DD/MM/YYYY')}`);
                                     });
@@ -149,7 +159,7 @@
                         <div class="row mb-2">
                             <div class="col-md-3 fv-row">
                                 <button type="submit" class="btn btn-sm btn-primary">Search</button>
-                                <button type="button" wire:click="resetFilters" class="btn btn-sm btn-danger">Reset</button>
+                                <button type="reset" wire:click="resetFilters" class="btn btn-sm btn-danger">Reset</button>
                             </div>
                         </div>
                     </form>
