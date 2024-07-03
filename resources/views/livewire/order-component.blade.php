@@ -14,6 +14,21 @@
     </div>
     <div class="row">
         <div class="col-12">
+            <div class="card card-xxl-stretch mb-5 mb-xl-8">
+                <div class="card-header">
+                    <h3 class="card-title align-items-start flex-column">
+                        <span class="card-label fs-5 mb-1">Order Statistics</span>
+                    </h3>
+                </div>
+                <div class="card-body py-3">            
+                    <p>Total Orders: <b>{{ $data['totalOrders'] }}</b></p>
+                    <p>Total Word Count: <b>{{ $data['totalWordCount'] }}</b></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
         @if(session()->has('message'))
             <div class="alert alert-success alert-dismissible" id="alert">
                 {{ session()->get('message') }}

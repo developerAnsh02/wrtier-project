@@ -186,7 +186,20 @@ class OrderComponent extends Component
             $ordersQuery->whereBetween('writer_ud', [$startDate, $endDate]);
         }
 
+        $WordCount = $ordersQuery->get();
+
         $data['order'] = $ordersQuery->paginate(10);
+
+        // Calculate the total word count for the pages
+        $totalWordCount = $WordCount->reduce(function ($carry, $order) {
+            return $carry + (is_numeric($order->pages) ? $order->pages : 0);
+        }, 0);
+
+        // Count the total number of orders
+        $totalOrders = $WordCount->count();
+        $data['totalWordCount'] = $totalWordCount;
+        $data['totalOrders'] = $totalOrders;
+        // dd($totalWordCount, $totalOrders);
         $data['tl'] = User::where('role_id', 6)->where('flag', 0)->where('admin_id' , auth()->user()->id)->orderBy('created_at', 'desc')->get(['id', 'name']);
         
         return view('livewire.order-component', compact('data'));
