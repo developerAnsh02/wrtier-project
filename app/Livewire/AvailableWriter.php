@@ -41,7 +41,7 @@ class AvailableWriter extends Component
                       ->whereDate('writer_ud', '>=', $filterDate);
             })
             ->where('flag', 0)
-            ->get(['id', 'name', 'email', 'mobile_no']);
+            ->get(['id', 'name', 'email', 'mobile_no', 'wordcount']);
 
         $usersWithTime = User::whereHas('writerWork.order', function ($query) use ($filterDate) {
                 $query->whereDate('writer_ud', '=', $filterDate)
@@ -55,7 +55,7 @@ class AvailableWriter extends Component
             }])
             ->where('role_id', 7)
             ->where('flag', 0)
-            ->get(['id', 'name', 'email', 'mobile_no']);
+            ->get(['id', 'name', 'email', 'mobile_no', 'wordcount']);
 
         return view('livewire.available-writer', compact('users', 'usersWithTime', 'filterDate'));
     }

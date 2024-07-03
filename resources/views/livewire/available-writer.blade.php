@@ -51,6 +51,7 @@
                                     <th>Available Date</th>
                                     <th>Writer Name</th>
                                     <th>Timer After Free</th>
+                                    <th>Word Count Capacity</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -65,6 +66,9 @@
                                         </td>
                                         <td style="white-space: nowrap;">
                                             Full Day
+                                        </td>
+                                        <td style="white-space: nowrap;">
+                                            {{$writer['wordcount']}}
                                         </td>
                                     </tr>
                                 @endforeach
@@ -81,6 +85,24 @@
                                         <td style="white-space: nowrap;">
                                             {{$writer['writerWork'][0]['order']['writer_ud_h']}}
                                         </td>
+                                        <td style="white-space: nowrap;">
+                                            @php
+                                                $officeStartTime = \Carbon\Carbon::createFromTime(9, 0, 0);
+                                                $officeEndTime = \Carbon\Carbon::createFromTime(18, 0, 0);
+                                                $writerOrderTime = \Carbon\Carbon::createFromFormat('H:i', $writer['writerWork'][0]['order']['writer_ud_h']);
+                                                $totalMinutes = $officeEndTime->diffInMinutes($officeStartTime);
+                                                $workingMinutes = $writerOrderTime->diffInMinutes($officeStartTime);
+                                                $remainingMinutes = $totalMinutes - $workingMinutes;
+                                            @endphp
+                                            TOTAL: {{$writer['wordcount' ]}} <br>
+
+                                            Reamining : <br> {{ $writer['wordcount' ] /  $totalMinutes * $remainingMinutes  }}<br>
+                                          
+                                        </td>
+
+
+
+
                                     </tr>
                                 @endforeach
                             </tbody>

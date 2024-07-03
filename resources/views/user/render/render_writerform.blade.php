@@ -19,6 +19,15 @@
             </div>
         </div>
         <div class="form-group">
+            <label for="name">Word Count Capacity</label>
+            <div class="input-group mb-3">
+                <span class="input-group-text" id="basic-addon1"><i class="fa fa-address-card"></i></span>
+                <input type="text" class="form-control" placeholder="Word Count" aria-label="Username"
+                    aria-describedby="basic-addon1" id="wordcount">
+            </div>
+        </div>
+
+        <div class="form-group">
             <label for="writer-tl" class="form-label">Team Leader</label>
             <div class="input-group mb-3">
                 <span class="input-group-text" id="basic-addon1"><i class="ti-user"></i></span>

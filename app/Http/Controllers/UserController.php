@@ -135,13 +135,16 @@ class UserController extends Controller
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'tl' => 'required|string|max:255'
+            'tl' => 'required|string|max:255',
+            'wordcount' => 'required|integer'
         ], [
             'name.required' => 'Name is required',
             'email.required' => 'Email is required',
             'email.email' => 'Provide a valid email address',
             'email.unique' => 'Email already exists',
             'tl.required' => 'Team Leader is required',
+            'wordcount.required' => 'Word Count Is Required',
+            'wordcount.integer' => 'Word Count Must Be numerical value'
         ]);
     
         $user = new User();
@@ -150,6 +153,7 @@ class UserController extends Controller
         $user->tl_id = $validatedData['tl'];
         $user->role_id= 7;
         $user->password = Hash::make('user@123');
+        $user->wordcount = $validatedData['wordcount'];
         
         $user->save();
     
@@ -178,19 +182,24 @@ class UserController extends Controller
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $id,
-            'tl_id' => 'nullable|integer|exists:users,id'
+            'tl_id' => 'nullable|integer|exists:users,id',
+             'wordcount' => 'required|integer'
         ], [
             'name.required' => 'Name is required',
             'email.required' => 'Email is required',
             'email.email' => 'Provide a valid email address',
             'email.unique' => 'Email already exists',
             'tl_id.exists' => 'The selected team leader does not exist',
+             'wordcount.required' => 'Word Count Is Required',
+            'wordcount.integer' => 'Word Count Must Be numerical value'
         ]);
     
         $writer = User::findOrFail($id);
         $writer->name = $request->input('name');
         $writer->email = $request->input('email');
         $writer->tl_id = $request->input('tl_id');
+        $writer->wordcount = $request->input('wordcount');
+
         $writer->save();
 
 

@@ -41,6 +41,15 @@
                         </div>
 
                         <div class="form-group">
+                            <label for="name">Word Count Capacity</label>
+                            <div class="input-group mb-3">
+                                <span class="input-group-text" id="basic-addon1"><i class="fa fa-address-card"></i></span>
+                                <input type="text" class="form-control" placeholder="Word Count" aria-label="Username"
+                                    aria-describedby="basic-addon1" id="wordcount">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
                             <label for="writer-tl" class="form-label">Team Leader</label>
                             <div class="input-group mb-3">
                                 <span class="input-group-text" id="basic-addon1"><i class="ti-user"></i></span>
@@ -77,6 +86,7 @@
                                         <thead>
                                             <tr>
                                                 <th>Writer Name/Email</th>
+                                                <th>Word Count/D</th>
                                                 <th>Action</th>
                                             </tr>
                                         </thead>
@@ -86,6 +96,7 @@
                                                     <td>{{$writet->name}} <br>
                                                         <div class="parimary">{{$writet->email}} </div>
                                                     </td>
+                                                    <td>  {{$writet->wordcount}}</td>
                                                     <td class="text-nowrap">
                                                         <a onclick="editDatawriter({{ $writet->id }}, event)"
                                                             data-bs-toggle="tooltip" data-original-title="Edit">

@@ -40,6 +40,7 @@
         let name = $('#name').val();
         let email = $('#email').val();
         let tl = $('#writer-tl').val();
+        let wordcount = $('#wordcount').val();
 
         $.ajax({
             url: '{{ route('add.writer') }}',
@@ -47,7 +48,8 @@
             data: {
                 name: name,
                 email: email,
-                tl: tl
+                tl: tl,
+                wordcount: wordcount
             },
             success: function(response) {
                 if (response.status === 'success') {
@@ -135,6 +137,9 @@
             let name = $('#name').val();
             let email = $('#email').val();
             let tl_id = $('#writer-tl').val();
+            let wordcount = $('#wordcount').val();
+
+            // alert(wordcount)
 
             if (!id) {
                 alert('ID is missing.');
@@ -147,7 +152,8 @@
                 data: {
                     name: name,
                     email: email,
-                    tl_id: tl_id
+                    tl_id: tl_id,
+                    wordcount:wordcount
                 },
                 success: function(response) {
                     if (response.status === 'success') {
