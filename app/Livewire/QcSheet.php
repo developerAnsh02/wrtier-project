@@ -19,6 +19,7 @@ class QcSheet extends Component
     public $qc_standard;
     public $comment;
     public $ai_score_input;
+    public $plag_score_input;
 
     // Filter properties
     public $filterWriter;
@@ -85,6 +86,7 @@ class QcSheet extends Component
             $this->comment = $orderAvailable->qc_comment;
 
             $this->ai_score_input = $orderAvailable->ai_score;
+            $this->plag_score_input = $orderAvailable->plag_score;
         } else {
            return redirect()->to('/Qc-Sheets');
         }        
@@ -145,6 +147,26 @@ class QcSheet extends Component
         session()->flash('message', 'AI Score updated successfully.');
     }
 
+    public function updatePlagScore($id)
+    {
+        $validatedData = $this->validate([
+            'plag_score_input' => 'nullable|numeric|min:0|max:100',
+        ]);
+
+        $orderUpdate = Order::find($id);
+        if (!$orderUpdate) {
+            return redirect()->to('/Qc-Sheets');
+        }
+
+        $orderUpdate->plag_score = $this->plag_score_input;
+
+        $orderUpdate->save();
+
+        $this->reset(['plag_score_input']);
+
+        session()->flash('message', 'Plag Score updated successfully.');
+    }
+
     public function render()
     {
         $executives = User::where('role_id', 3)->get();
@@ -163,7 +185,8 @@ class QcSheet extends Component
         ->orderBy('created_at', 'desc')
         ->select([
             'id', 'order_id', 'qc_admin', 'wid', 'writer_deadline', 'qc_date',
-            'writer_status', 'qc_standard', 'ai_score', 'qc_comment', 'qc_checked'
+            'writer_status', 'qc_standard', 'ai_score', 'qc_comment', 'qc_checked',
+            'plag_score'
         ]);
 
         // Apply filters

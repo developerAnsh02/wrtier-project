@@ -145,6 +145,7 @@
                                     <th>Status</th>
                                     <th>Quality standard</th>
                                     <th>Ai Score</th>
+                                    <th>Plag Score</th>
                                     <th>Writer </th>
                                     <th>Comment</th>
                                     <th>Action</th>
@@ -245,6 +246,40 @@
                                                         </div>
                                                         <div class="modal-footer">
                                                             <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">Save AI Score</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @if($order->plag_score != null)
+                                            <button type="button" data-bs-toggle="modal" data-bs-target="#editPlagScoreModal{{ $order->id }}" wire:click="editQc({{ $order->id }})" class="btn btn-sm btn-light-primary ml-2" title="Edit Plag Score">{{ $order->plag_score }} %</button>                                                
+                                        @else                     
+                                            <button type="button" data-bs-toggle="modal" data-bs-target="#editPlagScoreModal{{ $order->id }}" wire:click="editQc({{ $order->id }})" class="btn btn-sm btn-light-primary ml-2" title="Edit Plag Score"><div class="label label-table label-danger"></div></button>
+                                        @endif
+                                        <!-- Modal for AI Score -->
+                                        <div wire:ignore.self class="modal fade" id="editPlagScoreModal{{ $order->id }}" tabindex="-1" aria-labelledby="editPlagScoreModalLabel{{ $order->id }}" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <form wire:submit.prevent="updatePlagScore({{ $order->id }})">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="editPlagScoreModalLabel{{ $order->id }}">Edit Plag Score</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <div class="row g-9 text-center">
+                                                                <div class="col pb-2">
+                                                                    <div class="btn w-100 btn-outline-secondary p-2">{{ $order->order_id }}</div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label for="plag_score_input{{ $order->id }}" class="form-label">Plag Score</label>
+                                                                <input type="text" wire:model.defer="plag_score_input" class="form-control" id="plag_score_input{{ $order->id }}" placeholder="Enter Plag Score">
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">Save Plag Score</button>
                                                         </div>
                                                     </form>
                                                 </div>

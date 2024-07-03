@@ -22,7 +22,7 @@
             <label for="name">Word Count Capacity</label>
             <div class="input-group mb-3">
                 <span class="input-group-text" id="basic-addon1"><i class="fa fa-address-card"></i></span>
-                <input type="text" class="form-control" placeholder="Word Count" aria-label="Username"
+                <input type="text" value="{{$data['editablewriter']->wordcount}}" class="form-control" placeholder="Word Count" aria-label="Username"
                     aria-describedby="basic-addon1" id="wordcount">
             </div>
         </div>

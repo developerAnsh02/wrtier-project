@@ -94,9 +94,8 @@
                                                 $workingMinutes = $writerOrderTime->diffInMinutes($officeStartTime);
                                                 $remainingMinutes = $totalMinutes - $workingMinutes;
                                             @endphp
-                                            TOTAL: {{$writer['wordcount' ]}} <br>
-
-                                            Reamining : <br> {{ $writer['wordcount' ] /  $totalMinutes * $remainingMinutes  }}<br>
+                                            
+                                            {{ number_format($writer['wordcount' ] /  $totalMinutes * $remainingMinutes , 2) }}<br>
                                           
                                         </td>
 
