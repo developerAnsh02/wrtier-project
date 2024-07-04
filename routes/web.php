@@ -94,7 +94,6 @@ Route::middleware(['auth', 'verified', 'role'])->group(function ()
     
 
     // Order for admin 
-    // Route::get('/order' , [OrderController::class, 'order'])->name('order');
     Route::get('/search-writer-order', [UserController::class, 'searchWriterOrder'])->name('search.writer-order');
     Route::get('/order/paginate-data', [OrderController::class, 'pagination']);
     Route::get('/order/{id}', [OrderController::class, 'edit']);
