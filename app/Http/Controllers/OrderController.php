@@ -14,26 +14,26 @@ class OrderController extends Controller
     {
     }
 
-    public function order()
-    {
-        if (auth()->user()->role_id == 6) {
-            return view('WriterTeamLeader.order-tl');
-        }
-        $data['order'] = Order::with(['writer:id,name', 'subwriter:id,name','mulsubwriter' => function ($query) {$query->with('user:id,name');}])
-        ->where('admin_id', auth()->user()->id)->orderBy('id', 'desc')
-        ->select([
-                    'id', 'order_id', 'services', 'typeofpaper', 'pages', 'title',
-                    'writer_deadline', 'chapter', 'wid', 'swid', 'writer_status',
-                    'writer_fd', 'writer_ud', 'writer_ud_h', 'writer_fd_h',
-                    'resit', 'tech'
-                ])
-        ->paginate(10);
+    // public function order()
+    // {
+    //     if (auth()->user()->role_id == 6) {
+    //         return view('WriterTeamLeader.order-tl');
+    //     }
+    //     $data['order'] = Order::with(['writer:id,name', 'subwriter:id,name','mulsubwriter' => function ($query) {$query->with('user:id,name');}])
+    //     ->where('admin_id', auth()->user()->id)->orderBy('id', 'desc')
+    //     ->select([
+    //                 'id', 'order_id', 'services', 'typeofpaper', 'pages', 'title',
+    //                 'writer_deadline', 'chapter', 'wid', 'swid', 'writer_status',
+    //                 'writer_fd', 'writer_ud', 'writer_ud_h', 'writer_fd_h',
+    //                 'resit', 'tech'
+    //             ])
+    //     ->paginate(10);
 
-        $data['tl'] = User::where('role_id', 6)->where('flag', 0)->where('admin_id' , auth()->user()->id)->orderBy('created_at', 'desc')->get(['id', 'name']);
-        $data['writer'] = User::where('flag', 0)->where('role_id' , 7)->get(['id' , 'name' , 'admin_id']);
+    //     $data['tl'] = User::where('role_id', 6)->where('flag', 0)->where('admin_id' , auth()->user()->id)->orderBy('created_at', 'desc')->get(['id', 'name']);
+    //     $data['writer'] = User::where('flag', 0)->where('role_id' , 7)->get(['id' , 'name' , 'admin_id']);
 
-        return view('order.order-admin', compact('data'));
-    }
+    //     return view('order.order-admin', compact('data'));
+    // }
 
 
     public function pagination(Request $request)
@@ -176,7 +176,7 @@ public function update(Request $request, $id)
     {            
         return view('order.qc-sheet');
     }
-    public function order2(Request $request)
+    public function order(Request $request)
     {            
         return view('order.order');
     }

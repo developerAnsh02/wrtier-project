@@ -94,7 +94,7 @@ Route::middleware(['auth', 'verified', 'role'])->group(function ()
     
 
     // Order for admin 
-    Route::get('/order' , [OrderController::class, 'order'])->name('order');
+    // Route::get('/order' , [OrderController::class, 'order'])->name('order');
     Route::get('/search-writer-order', [UserController::class, 'searchWriterOrder'])->name('search.writer-order');
     Route::get('/order/paginate-data', [OrderController::class, 'pagination']);
     Route::get('/order/{id}', [OrderController::class, 'edit']);
@@ -106,7 +106,7 @@ Route::middleware(['auth', 'verified', 'role'])->group(function ()
     //Qc
     Route::get('/Qc-Sheets', [OrderController::class, 'Qc'])->name('Qc-Sheets');
     // order
-    Route::get('/order2' , [OrderController::class, 'order2'])->name('order2');
+    Route::get('/order' , [OrderController::class, 'order'])->name('order');
 
 
     // Writer-available
