@@ -31,8 +31,15 @@
                     <div class="d-flex flex-row">
                         <div class="round align-self-center round-success"><i style="font-size:48px;" class="fa fa-first-order"></i></div>
                         <div class="m-l-10 align-self-center">
-                            <h3 class="m-b-0"> {{$data['TotalOrders']}}</h3>
-                            <h5 class="text-muted m-b-0">Total Order</h5></div>
+                            <h3 class="m-b-0"> 
+                                @if(Auth::user()->role_id == 8)
+                                    {{$data['TotalOrders']}}
+                                @elseif(Auth::user()->role_id == 6)
+                                    {{$data['TotalOrdersTl']}}
+                                @endif
+                            </h3>
+                            <h5 class="text-muted m-b-0">Total Order</h5>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -43,8 +50,15 @@
                     <div class="d-flex flex-row">
                         <div class="round align-self-center round-danger"><i style="font-size:48px;" class="fa fa-clock-o"></i></div>
                         <div class="m-l-10 align-self-center">
-                            <h3 class="m-b-0">{{$data['InprogressOrder']}}</h3>
-                            <h5 class="text-muted m-b-0">In progress Order</h5></div>
+                            <h3 class="m-b-0">
+                                @if(Auth::user()->role_id == 8)
+                                    {{$data['InprogressOrder']}}
+                                @elseif(Auth::user()->role_id == 6)
+                                    {{$data['InprogressOrderTl']}}
+                                @endif    
+                            </h3>
+                            <h5 class="text-muted m-b-0">In progress Order</h5>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -55,8 +69,15 @@
                     <div class="d-flex flex-row">
                         <div class="round align-self-center round-info"><i style="font-size:48px;" class="fa fa-ban"></i></div>
                         <div class="m-l-10 align-self-center">
-                            <h3 class="m-b-0">{{$data['NotAssignOrder']}}</h3>
-                            <h5 class="text-muted m-b-0">Not Assign Order</h5></div>
+                            <h3 class="m-b-0">
+                                @if(Auth::user()->role_id == 8)
+                                    {{$data['NotAssignOrder']}}
+                                @elseif(Auth::user()->role_id == 6)
+                                    {{$data['NotAssignOrderTl']}}
+                                @endif 
+                            </h3>
+                            <h5 class="text-muted m-b-0">Not Assign Order</h5>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -87,38 +108,65 @@
                 </div>
             </div>
         </div>
-        <div class="col-lg-8 col-md-12">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">My All Team Leader And Writer </h5>
-                    <div class="container">
-                    <nav class="sidebar-nav">
-                        <ul id="sidebarnav">
-                        @foreach($data['Tl'] as $tl)
-                            
-                                <li>
-                                    <a class="has-arrow waves-effect waves-dark" href="javascript:void(0)" aria-expanded="false">
-                                        <i class="fa fa-user"></i>
-                                        <span class="hide-menu">{{$tl->name}} (TL)</span>
-                                    </a>
-                                    @if($tl->writer->isNotEmpty() )
-                                        <ul aria-expanded="false" class="collapse">
-                                            @foreach($tl->writer as $writer)
-                                                <li><a >{{$writer->name}} (Writer   )</a></li>
-                                            @endforeach
-                                        </ul>
-                                    @endif
-                                </li>
+        @if(Auth::user()->role_id == 8)
+            <div class="col-lg-8 col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">My All Team Leader And Writer </h5>
+                        <div class="container">
+                        <nav class="sidebar-nav">
+                            <ul id="sidebarnav">
+                            @foreach($data['Tl'] as $tl)
                                 
+                                    <li>
+                                        <a class="has-arrow waves-effect waves-dark" href="javascript:void(0)" aria-expanded="false">
+                                            <i class="fa fa-user"></i>
+                                            <span class="hide-menu">{{$tl->name}} (TL)</span>
+                                        </a>
+                                        @if($tl->writer->isNotEmpty() )
+                                            <ul aria-expanded="false" class="collapse">
+                                                @foreach($tl->writer as $writer)
+                                                    <li><a >{{$writer->name}} (Writer   )</a></li>
+                                                @endforeach
+                                            </ul>
+                                        @endif
+                                    </li>
+                                    
 
-                        @endforeach
-                        </ul>
-                    </nav>
-                    {{ $data['Tl']->links() }}
+                            @endforeach
+                            </ul>
+                        </nav>
+                        {{ $data['Tl']->links() }}
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        @elseif(Auth::user()->role_id == 6)
+            <div class="col-lg-8 col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">All My Writer </h5>
+                        <div class="container">
+                        <nav class="sidebar-nav">
+                            <ul id="sidebarnav">
+                            @foreach($data['Tl'] as $tl)
+                                
+                                    @if($tl->id == Auth::user()->id && $tl->writer->isNotEmpty() )
+                                        @foreach($tl->writer as $writer)
+                                            <li><a ><i class="fa fa-user"></i> {{$writer->name}} (Writer   )</a></li>
+                                        @endforeach
+                                    @endif
+                                    
+
+                            @endforeach
+                            </ul>
+                        </nav>
+                        
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
     </div>
 </div>
 <p id="displayText"></p>

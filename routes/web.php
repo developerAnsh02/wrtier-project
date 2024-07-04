@@ -46,15 +46,30 @@ Route::get('/dashboard', function () {
     ->where('flag', '0')
     ->paginate(8);
 
+    if (Auth::user()->role_id == 6) {
+        $user_id = Auth::user()->id;
+
+        $data['TotalOrdersTl']      = Order::where('wid', $user_id)->count();
+        $data['InprogressOrderTl']  = Order::where('wid', $user_id)->where('writer_status', 'In Progress')->count();
+        $data['NotAssignOrderTl']   =  Order::where('wid', $user_id)->where(function($query)
+        {
+            $query
+            ->whereNull('writer_status')
+            ->orWhere('writer_status', 'Not Assigned')
+            ->orWhere('writer_status', '');
+            
+        })->count();
+        
+    }
     
 
     return view('dashboard', compact('data'));
     
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->middleware(['auth', 'verified', 'role'])->name('dashboard');
 
 
 
-Route::middleware('auth')->group(function () 
+Route::middleware(['auth', 'verified', 'role'])->group(function () 
 {
     Route::get('/profile',    [ProfileController::class, 'edit'])->name('profile.edit') ;
     Route::patch('/profile',  [ProfileController::class, 'update'])->name('profile.update');
