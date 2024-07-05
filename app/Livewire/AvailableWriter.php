@@ -56,7 +56,24 @@ class AvailableWriter extends Component
             ->where('role_id', 7)
             ->where('flag', 0)
             ->get(['id', 'name', 'email', 'mobile_no', 'wordcount']);
+            
+        $totalWordCount = 0;
 
-        return view('livewire.available-writer', compact('users', 'usersWithTime', 'filterDate'));
+        foreach ($users as $writer) {                
+            $wordCountPerMinute = $writer['wordcount'];
+            $totalWordCount += $wordCountPerMinute;
+        }
+        foreach ($usersWithTime as $writer) {
+            $officeStartTime = Carbon::createFromTime(9, 0, 0);
+            $officeEndTime = Carbon::createFromTime(18, 0, 0);
+            $writerOrderTime = Carbon::createFromFormat('H:i', $writer['writerWork'][0]['order']['writer_ud_h']);
+            $totalMinutes = $officeEndTime->diffInMinutes($officeStartTime);
+            $workingMinutes = $writerOrderTime->diffInMinutes($officeStartTime);
+            $remainingMinutes = $totalMinutes - $workingMinutes;
+            $wordCountPerMinute = $writer['wordcount'] / $totalMinutes * $remainingMinutes;
+            $totalWordCount += $wordCountPerMinute;
+        }
+
+        return view('livewire.available-writer', compact('users', 'usersWithTime', 'filterDate', 'totalWordCount'));
     }
 }

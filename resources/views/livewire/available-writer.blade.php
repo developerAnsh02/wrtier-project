@@ -1,10 +1,10 @@
 <div class="container-fluid">
 
     <div class="row page-titles">
-        <div class="col-md-5 align-self-center">
-            <h4 class="text-themecolor">Available Writer</h4>
+        <div class="col-md-7 align-self-center">
+            <h4 class="text-themecolor">Available Writer | Word Count : {{ number_format($totalWordCount, 2) }}</h4>
         </div>
-        <div class="col-md-7 align-self-center text-end">
+        <div class="col-md-5 align-self-center text-end">
             <div class="d-flex justify-content-end align-items-center">
                 <ol class="breadcrumb justify-content-end">
                     <li class="breadcrumb-item"><a href="/dashboard">Home</a></li>
