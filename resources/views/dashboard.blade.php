@@ -34,6 +34,8 @@
                             <h3 class="m-b-0"> 
                                 @if(Auth::user()->role_id == 8)
                                     {{$data['TotalOrders']}}
+                                @elseif(Auth::user()->role_id == 7)
+                                    {{$data['TotalOrdersWriter']}}
                                 @elseif(Auth::user()->role_id == 6)
                                     {{$data['TotalOrdersTl']}}
                                 @endif
@@ -53,6 +55,8 @@
                             <h3 class="m-b-0">
                                 @if(Auth::user()->role_id == 8)
                                     {{$data['InprogressOrder']}}
+                                @elseif(Auth::user()->role_id == 7)
+                                    {{$data['InprogressOrderWriter']}}
                                 @elseif(Auth::user()->role_id == 6)
                                     {{$data['InprogressOrderTl']}}
                                 @endif    
@@ -72,6 +76,8 @@
                             <h3 class="m-b-0">
                                 @if(Auth::user()->role_id == 8)
                                     {{$data['NotAssignOrder']}}
+                                @elseif(Auth::user()->role_id == 7)
+                                    {{$data['NotAssignOrderWriter']}}
                                 @elseif(Auth::user()->role_id == 6)
                                     {{$data['NotAssignOrderTl']}}
                                 @endif 
@@ -86,7 +92,7 @@
     </div>
 
     <div class="row">
-        <div class="col-lg-4 col-md-12">
+        <div class="col-lg-{{ Auth::user()->role_id == 7 ? '12' : '4' }} col-md-12">
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title ">Order Anylysis</h5>

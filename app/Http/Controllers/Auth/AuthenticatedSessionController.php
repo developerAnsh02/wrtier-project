@@ -29,7 +29,7 @@ class AuthenticatedSessionController extends Controller
     
         $request->session()->regenerate();
     
-        if (auth()->user()->role_id == 1 || auth()->user()->role_id == 4 || auth()->user()->role_id == 9) {
+        if (auth()->user()->role_id == 1 || auth()->user()->role_id == 2 || auth()->user()->role_id == 4 || auth()->user()->role_id == 9) {
             auth()->logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();

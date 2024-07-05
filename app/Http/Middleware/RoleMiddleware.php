@@ -17,9 +17,9 @@ class RoleMiddleware
     public function handle($request, Closure $next)
     {
         if (Auth::check()) {
-            if (Auth::user()->role_id == 6) {
+            if (Auth::user()->role_id == 6 || Auth::user()->role_id == 7) {
                 // Allow access to /dashboard and /order routes only
-                $allowedRoutes = ['dashboard', 'order'];
+                $allowedRoutes = ['dashboard', 'order', 'profile.edit'];
 
                 if (in_array($request->route()->getName(), $allowedRoutes)) {
                     return $next($request);

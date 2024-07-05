@@ -161,6 +161,8 @@ public function update(Request $request, $id)
     {
         if (auth()->user()->role_id == 6) {
             return view('WriterTeamLeader.order-tl');
+        }elseif(auth()->user()->role_id == 7) {
+            return view('Writer.order-writer');
         }
         return view('order.order');
     }

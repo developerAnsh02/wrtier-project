@@ -8,7 +8,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\OrderController;
 use App\Livewire\QcSheet;
 use NunoMaduro\Collision\Writer;
-
+use App\Models\Multipleswiter;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -60,6 +60,22 @@ Route::get('/dashboard', function () {
             
         })->count();
         
+    }elseif (Auth::user()->role_id == 7) {
+        # code...Writer
+        $user_id = Auth::user()->id;
+
+        $multipleWriters = Multipleswiter::where('user_id', $user_id)->get();            
+        $orderIds = $multipleWriters->pluck('order_id')->toArray();            
+        $data['TotalOrdersWriter'] = Order::whereIn('id', $orderIds)->count();   
+        $data['InprogressOrderWriter']  = Order::whereIn('id', $orderIds)->where('writer_status', 'In Progress')->count();
+        $data['NotAssignOrderWriter']   = Order::whereIn('id', $orderIds)->where(function($query)
+        {
+            $query
+            ->whereNull('writer_status')
+            ->orWhere('writer_status', 'Not Assigned')
+            ->orWhere('writer_status', '');
+            
+        })->count();
     }
     
 
