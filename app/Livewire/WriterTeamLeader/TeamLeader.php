@@ -51,8 +51,7 @@ class TeamLeader extends Component
         $this->search = '';
         $this->filterByStatus = '';
         $this->filterExtra = '';
-        $this->filterSubWriter = '';
-        $this->filterEditedOn = '';
+        $this->filterSubWriter = ''; 
         $this->filterFromDateApply = '';
         $this->filterToDateApply = '';
         $this->filterFromDate = '';
@@ -72,8 +71,11 @@ class TeamLeader extends Component
         ];
 
         if ($this->search) {
-            $ordersQuery->where('order_id', 'like', '%' . $this->search . '%')
-                ->orWhere('title', $this->search);
+            
+            $ordersQuery->where(function($query) {
+                $query->where('order_id', 'like', '%' . $this->search . '%')
+                        ->orWhere('title', 'like', '%' . $this->search . '%');
+            });
         }
 
         if ($this->filterByStatus) {
