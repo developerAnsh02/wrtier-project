@@ -174,7 +174,7 @@
                 </div>
             @endif
         </div>
-    @elseif(Auth::user()->role_id == 3)
+    @elseif(Auth::user()->role_id == 3 || Auth::user()->role_id == 5)
         <div class="row">
             <div class="col-lg-12 col-md-12">
                 <div class="card">

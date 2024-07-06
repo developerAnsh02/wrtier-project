@@ -159,7 +159,9 @@ public function update(Request $request, $id)
     }
     public function order()
     {
-        if (auth()->user()->role_id == 6) {
+        if (auth()->user()->role_id == 5) {
+            return view('ProjectTeam.order-project');
+        }elseif (auth()->user()->role_id == 6) {
             return view('WriterTeamLeader.order-tl');
         }elseif(auth()->user()->role_id == 7) {
             return view('Writer.order-writer');
