@@ -27,7 +27,17 @@ class RoleMiddleware
                     // Abort with 404 if trying to access unauthorized routes
                     abort(404);
                 }
-            } else {
+            }elseif (Auth::user()->role_id == 3) {
+                // Allow access to /dashboard and /Qc routes only
+                $allowedRoutes = ['dashboard', 'Qc-Sheets', 'profile.edit'];
+
+                if (in_array($request->route()->getName(), $allowedRoutes)) {
+                    return $next($request);
+                } else {
+                    // Abort with 404 if trying to access unauthorized routes
+                    abort(404);
+                }
+            }else {
                 // Allow access to all routes for other roles
                 return $next($request);
             }

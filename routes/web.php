@@ -46,7 +46,12 @@ Route::get('/dashboard', function () {
     ->where('flag', '0')
     ->paginate(8);
 
-    if (Auth::user()->role_id == 6) {
+    if (Auth::user()->role_id == 3) {
+        $data['TeamMemberData'] = User::where('role_id', '3')->select([
+            'name', 'photo'
+        ])->get();
+        // echo '<pre>' ; print_r($data['TeamMemberData']) ; exit;
+    }elseif (Auth::user()->role_id == 6) {
         $user_id = Auth::user()->id;
 
         $data['TotalOrdersTl']      = Order::where('wid', $user_id)->count();
