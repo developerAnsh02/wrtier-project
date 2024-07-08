@@ -228,7 +228,7 @@
                             <div class="form-group">
                                 <label for="status">Status</label>
                                 <select id="status" wire:model="status" class="form-control">
-                                    <option value="Not Assigned">Not Assigned</option>
+                                    <option value=""></option>
                                     <option value="Hold">Hold</option>
                                     <option value="Completed">Completed</option>
                                     
