@@ -95,7 +95,7 @@
 									<th>Delivery Date <br> (Draft D/T)</th>
                                     <th>Title</th>
                                     <th>Status</th>
-                                    <th>TL&Writer</th>
+                                    <th>Writer</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -216,32 +216,139 @@
         </div>
     </div>
     @if($isEditModalOpen)
-        <div class="modal fade show" style="display: block;">
-            <div class="modal-dialog">
-                <div class="modal-content">
+        <div class="modal fade show" style="display: block;  scrollbar-width: none;">
+            <div class="modal-dialog" style="max-width: 900px;">
+                <div class="modal-content" style="background: aliceblue;">
                     <div class="modal-header">
                         <h5 class="modal-title">Edit Order</h5>
                         <button type="button" wire:click="closeEditModal" class="btn-close" aria-label="Close"></button>
                     </div>
-                    <div class="modal-body">
+                    <div class="modal-body m-4" style="border: 1px solid gray;">
                         <form>
-                            <div class="row g-9 text-center">
+                            <div class="row g-9 text-center mt-4">
                                 <div class="col pb-4">
                                     <div class="btn w-100 btn-outline-secondary p-2">{{ $orderCode }}</div>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label for="status">Status</label>
-                                <select id="status" wire:model="status" class="form-control">
-                                    <option value="Not Assigned">Not Assigned</option>
-                                    <option value="Draft Ready">Draft Ready</option>
-                                    <option value="Complete file Ready">Complete file Ready</option>
-                                    
-                                </select>
+                            <div class="row g-9 mb-2 text-start">
+                                <div class="col-md-4 mx-auto fv-row">
+                                    <label class=" fs-6 fw-bold mb-2">Module Code</label>
+                                    <input type="text" wire:model="module_code" required class="form-control form-control-solid" placeholder="" value="" name="module_code">
+                                </div>
+                                <div class="col-md-8 mx-auto fv-row">
+                                    <label class=" fs-6 fw-bold mb-2">Project Title</label>
+                                    <input type="text" wire:model="project_title" required class="form-control form-control-solid" placeholder="" value="" name="title">
+                                    @error('project_title')
+                <div class="alert alert-danger mt-2" id="error-message">
+                    {{ $message }}
+                </div>
+            @enderror
+                                </div>
                             </div>
+                            <div class="row g-9 mb-2 text-start">
+                                <div class="col-md-4 fv-row">
+                                    <label class="fs-6 fw-bold mb-2">Order Date</label>
+                                    <input type="date" wire:model="order_date" class="form-control form-control-solid" placeholder="" value="" name="order_date">
+                                </div>
+                                <div class="col-md-4 fv-row">
+                                    <label class="fs-6 fw-bold mb-2">Writer Deadline</label>
+                                    <input type="date" wire:model="writer_deadline" class="form-control form-control-solid" placeholder="" value="" name="writer_deadline">
+                                </div>
+                                <div class="col-md-4 fv-row text-start">
+                                    <label class="fs-6 fw-bold mb-2">Writer Deadline Time</label>                                   
+                                    <input type="time" wire:model="writer_deadline_time" class="form-control form-control-solid" placeholder="" value="" name="writer_deadline_time">                                    
+                                </div>
+                            </div>
+                            <div class="row g-9 mb-2 text-start">
+                                <div class="col-md-4 fv-row text-start">
+                                    <label class="fs-6 fw-bold mb-2">Delivery Date</label>
+                                    <input type="date" wire:model="delivery_date" class="form-control form-control-solid" placeholder="" value="" readonly>
+                                </div>
+                                <div class="col-md-4 fv-row text-start">
+                                    <label class="fs-6 fw-bold mb-2">Delivery Time</label>
+                                    @if($delivery_time)
+                                    <input type="time" wire:model="delivery_time" class="form-control form-control-solid" placeholder="" value="" readonly>
+                                    @else
+                                    <input type="time" class="form-control form-control-solid" placeholder="" value="" readonly>
+                                    @endif
+                                </div>
+                                <div class="col-md-4 fv-row">
+                                    <label class=" fs-6 fw-bold mb-2">Type Of Paper</label>
+                                    <select wire:model="type_of_paper" name="paper" class="form-control form-control-solid" disabled>
+                                        <option value="" data-select2-id="select2-data-18-e9lh12">Not Selected</option>
+                                        @foreach($AllPaper as $paper)
+                                            <option value="{{$paper->paper_type}}">{{$paper->paper_type}}</option>
+                                        @endforeach   
+                                    </select>                         
+                                </div>
+                            </div>                            
+                            <div class="row mb-2">
+                                <div class="col-md-4 fv-row">
+                                    <label class=" fs-6 fw-bold mb-2">Chapter</label>
+                                    <select wire:model="chapter" name="chapter" class="form-control form-control-solid">
+                                        <option value=""> </option>
+                                        <option value="Chapter 1:  Introduction">Chapter 1:  Introduction</option>
+                                        <option value="Chapter 2: Litreature Review">Chapter 2: Litreature Review</option>
+                                        <option value="Chapter 3: Methedology">Chapter 3: Methedology</option>
+                                        <option value="Chapter 4: Data Analysis">Chapter 4: Data Analysis</option>
+                                        <option value="Chapter 5: Conclusion & Recommendation">Chapter 5: Conclusion & Recommendation</option>
+                                    </select>    
+                                </div>
+                                <div class="col-md-4 fv-row">
+                                    <label class=" fs-6 fw-bold mb-2">Project Status</label>
+                                    <select wire:model="status" class="form-control">
+                                        <option value=""></option>
+                                        @foreach($AllStatus as $status)
+                                        <option value="{{$status->status}}">{{$status->status}}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-4 fv-row">
+                                    <label class=" fs-6 fw-bold mb-2">Writer Name</label>
+                                    <select wire:model="writer_name" class="form-control">
+                                        <option value=""></option>
+                                        @foreach($AllTeam as $writer)
+                                        <option  value="{{$writer->writer_name}}">{{$writer->writer_name}}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row g-9 mb-2 text-start">       
+                                <div class="col-md-4 fv-row text-start">
+                                    <label class=" fs-6 fw-bold mb-2">Word</label>
+                                    <input type="text" wire:model="word" class="form-control form-control-solid" placeholder="" value="" name="word">
+                                </div>                         
+                            </div>                         
+                            <div class="row g-9 mb-2 text-start">                                
+                                <div class="col-md-4 fv-row">
+                                    <label class="fs-6 fw-bold mb-2">Draft Required</label>
+                                    <select wire:model="draft_required" class="form-control form-control-solid">
+                                        <option value=""></option>
+                                        <option value="N">No</option>
+                                        <option value="Y">Yes</option>
+                                    </select>                         
+                                </div>
+                                <div class="col-md-4 fv-row">
+                                    <label class="fs-6 fw-bold mb-2">Draft Date</label>
+                                    <input wire:model="draft_date" type="date" class="form-control form-control-solid" name="draft_date">
+                                </div>                            
+                                <div class="col-md-4 fv-row text-start">
+                                    <label class="fs-6 fw-bold mb-2">Draft Time</label>
+                                    <input wire:model="draft_time" type="time" class="form-control form-control-solid">                                    
+                                </div>                                
+                            </div>
+                            <div class="row g-9 mb-4 text-center">
+                                <div class="col-md-12 fv-row">
+                                    <label class=" fs-6 fw-bold mb-2">Messages</label>
+                                    <textarea wire:model="messages" name="messages" value="" class="form-control form-control-solid" id="" cols="30" rows="3"></textarea>
+                                </div>
                             
-
-                            <button type="button" wire:click.prevent="update" class="btn btn-primary">Update</button>
+                            </div>
+                            <div class="row g-9 mb-2 text-end">
+                                <div class="col-md-12 fv-row">
+                                    <button type="button" wire:click.prevent="update" class="btn btn-primary">Update</button>
+                                </div>
+                            </div>
                         </form>
                     </div>
                 </div>
