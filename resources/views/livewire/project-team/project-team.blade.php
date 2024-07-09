@@ -234,15 +234,16 @@
                                 <div class="col-md-4 mx-auto fv-row">
                                     <label class=" fs-6 fw-bold mb-2">Module Code</label>
                                     <input type="text" wire:model="module_code" required class="form-control form-control-solid" placeholder="" value="" name="module_code">
+                                    @error('module_code')
+                                        <div style="color:red;" class="mt-2 auto-hide">*{{ $message }}</div>
+                                    @enderror
                                 </div>
                                 <div class="col-md-8 mx-auto fv-row">
                                     <label class=" fs-6 fw-bold mb-2">Project Title</label>
                                     <input type="text" wire:model="project_title" required class="form-control form-control-solid" placeholder="" value="" name="title">
                                     @error('project_title')
-                <div class="alert alert-danger mt-2" id="error-message">
-                    {{ $message }}
-                </div>
-            @enderror
+                                        <div style="color:red;" class="mt-2 auto-hide">*{{ $message }}</div>
+                                    @enderror
                                 </div>
                             </div>
                             <div class="row g-9 mb-2 text-start">
@@ -302,6 +303,9 @@
                                         <option value="{{$status->status}}">{{$status->status}}</option>
                                         @endforeach
                                     </select>
+                                    @error('status')
+                                        <div style="color:red;" class="mt-2 auto-hide">*{{ $message }}</div>
+                                    @enderror
                                 </div>
                                 <div class="col-md-4 fv-row">
                                     <label class=" fs-6 fw-bold mb-2">Writer Name</label>
@@ -317,6 +321,9 @@
                                 <div class="col-md-4 fv-row text-start">
                                     <label class=" fs-6 fw-bold mb-2">Word</label>
                                     <input type="text" wire:model="word" class="form-control form-control-solid" placeholder="" value="" name="word">
+                                    @error('word')
+                                        <div style="color:red;" class="mt-2 auto-hide">*{{ $message }}</div>
+                                    @enderror
                                 </div>                         
                             </div>                         
                             <div class="row g-9 mb-2 text-start">                                
@@ -349,11 +356,40 @@
                                     <button type="button" wire:click.prevent="update" class="btn btn-primary">Update</button>
                                 </div>
                             </div>
-                        </form>
+                        </form>                        
+                        <!-- Preloader (optional) -->
+                        <div wire:loading wire:target="update"style="width: 100%; text-align: center;">                            
+                            <div class="spinner-border" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>                            
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
         <div class="modal-backdrop fade show"></div>
     @endif
+    <!-- <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const observer = new MutationObserver(function (mutationsList, observer) {
+                mutationsList.forEach(function (mutation) {
+                    if (mutation.addedNodes.length) {
+                        mutation.addedNodes.forEach(function (node) {
+                            if (node.classList && node.classList.contains('auto-hide') && !node.classList.contains('processed')) {
+                                setTimeout(function () {
+                                    node.style.display = 'none';
+                                    node.classList.add('processed');
+                                }, 5000); // 5000 milliseconds = 5 seconds
+                            }
+                        });
+                    }
+                });
+            });
+
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+        });
+    </script> -->
 </div>

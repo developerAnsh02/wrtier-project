@@ -5,6 +5,8 @@ namespace App\Livewire\ProjectTeam;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Carbon\Carbon;
+use Mail;
+use App\Mail\OrderComplete;
 use App\Models\User;
 use App\Models\Order;
 use App\Models\Status;
@@ -17,7 +19,7 @@ class ProjectTeam extends Component
 
     protected $paginationTheme = 'bootstrap';
 
-    // edit modal var
+    // edit modal var start
     public $isEditModalOpen = false;
     public $orderId;
     public $status;
@@ -25,7 +27,7 @@ class ProjectTeam extends Component
     public $AllTeam = [];
     public $AllPaper = [];
     public $orderCode;
-    //
+   
     public $module_code;
     public $project_title;
     public $order_date;
@@ -41,7 +43,8 @@ class ProjectTeam extends Component
     public $draft_date;
     public $draft_time;
     public $messages;
-
+    // edit modal var end
+    
     public function render()
     {
         $ordersQuery = Order::with('user')->where('uid', '!=', 0)->orderBy('order_id', 'desc')
@@ -89,31 +92,33 @@ class ProjectTeam extends Component
     public function closeEditModal()
     {
         $this->isEditModalOpen = false;
+        $this->resetValidation();
     }
     public function update()
     {
         $customMessages = [
-            'project_title' => 'Please select at least one project_title.',
+            'project_title.required' => 'Please enter a project title.',
+            'module_code.required' => 'Please enter a module code.',
+            'word.numeric' => 'Please enter a numeric value.',
+            'status.required' => 'Please select a status.',
         ];
         $this->validate([
             'project_title' => 'required|string',
+            'module_code' => 'required|string',
+            'word' => 'nullable|numeric',
+            'status' => 'required|string',
         ], $customMessages);
 
-        $order = Order::findOrFail($this->orderId);
-        
-        
-        // $order->save();
         if (auth()->user()->role_id == 5) {
+            $order = Order::findOrFail($this->orderId);
+
             // Fields specific to the project-team role
             $order->title = $this->project_title;
             $order->order_date = $this->order_date;
             $order->writer_deadline = $this->writer_deadline;
             $order->writer_deadline_time = $this->writer_deadline_time;
-            // Check if the input is a numeric value
-            if ($this->word && !is_numeric($this->word)) {
-                dd('Word must be a numeric value');
-                // return redirect()->back()->with('warning', 'Word must be a numeric value');
-            }
+            
+            // Check if the input is a numeric value            
             $order->pages = $this->word;
             
             if( $this->status == 'Completed')
@@ -121,24 +126,26 @@ class ProjectTeam extends Component
                 $order->projectstatus = $this->status;
                 $order->status_date = Carbon::now('Asia/Kolkata');
                 $order->status_by   = auth()->user()->name;
-
-                // $orderData = [
-                //     'name' => $req->input('user_name'),
-                //     'email' => $req->input('email'),
-                //     'title' => $req->input('title'),
-                //     'order_code' => $order->order_id,
-                //     'date'     => $order->delivery_date,
-                //     'due'     => $req->input('amount') - $req->input('r_amount'),
-                // ];
-                // Mail::to('vikramsuthar.wm@gmail.com')->cc('vikramsuthar.wm@gmail.com')->send(new OrderComplete($orderData));
-               dd($order->projectstatus, $order->status_date, $order->status_by);
+                $user = User::select('name', 'email')->find($order->uid);
+                $orderData = [
+                    'name'       => $user->name,
+                    'email'      => $user->email,
+                    'title'      => $order->title,
+                    'order_code' => $order->order_id,
+                    'date'       => $order->delivery_date,
+                    'due'        => (int)$order->amount - (int)$order->received_amount,
+                ];
+                Mail::to('vikramsuthar.wm@gmail.com')->cc('vikramsuthar.wm@gmail.com')->send(new OrderComplete($orderData));
+            
             }
             elseif( $this->status == 'Delivered')
             {
+                // Check additional condition
                 if ((int)$order->amount - (int)$order->received_amount !== 0) {
-                    dd("Order cannot be marked as Delivered if there is any due payment remaining.");
-                    // return redirect()->back()->with('warning' , 'Order cannot be marked as Delivered if there is any due payment remaining.');
-                }                
+                    $this->addError('status', 'Order cannot be marked as Delivered if there is any due payment remaining.');
+                    return;
+                }
+                               
                 $order->projectstatus = $this->status;
             }
             else
@@ -170,10 +177,12 @@ class ProjectTeam extends Component
                 $order->writer_name = $this->writer_name;
                 $order->admin_id =  '0'; 
             }
-            // dd($order->writer_name, $order->admin_id);
+            
 
-        }
-        $this->isEditModalOpen = false;
-
+            if (!$this->getErrorBag()->any()) {            
+                $order->save();
+                $this->isEditModalOpen = false;
+            }
+        }        
     }
 }
