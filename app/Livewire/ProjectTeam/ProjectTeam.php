@@ -45,6 +45,32 @@ class ProjectTeam extends Component
     public $messages;
     // edit modal var end
     
+    // filter var start
+    public $search;
+    public $filterByStatus;
+    public $filterByTeam;
+    public $filterExtra;
+    public $filterEditedOn;
+    public $filterFromDate;
+    public $filterToDate;
+    
+    // filter var end
+
+    public function applyFilters()
+    {
+        $this->resetPage();
+    }
+
+    public function resetFilters()
+    {
+        $this->search = '';
+        $this->filterByStatus = '';
+        $this->filterByTeam = '';
+        $this->filterExtra = '';
+        $this->filterEditedOn = '';
+        $this->filterFromDate = '';
+        $this->filterToDate = '';
+    }
     public function render()
     {
         $ordersQuery = Order::with('user')->where('uid', '!=', 0)->orderBy('order_id', 'desc')
@@ -56,8 +82,66 @@ class ProjectTeam extends Component
             'users.is_fail as user_is_fail' // Select the is_fail attribute from the users table
         ])
         ->join('users', 'orders.uid', '=', 'users.id');
+        //filter
+        if ($this->search) {            
+            $ordersQuery->where(function($query) {
+                $query->where('orders.order_id', 'like', '%' . $this->search . '%')
+                        ->orWhere('orders.title', 'like', '%' . $this->search . '%');
+            });
+        }
+
+        if ($this->filterByStatus) {
+            $ordersQuery->where('orders.projectstatus', $this->filterByStatus);
+        }
+
+        if ($this->filterByTeam) {
+            if($this->filterByTeam == 'team 13') {
+                $ordersQuery->where('orders.admin_id',  8392 );
+            }else{
+                $ordersQuery->where('orders.writer_name', 'Like', $this->filterByTeam );
+            }
+        }
+
+        if($this->filterExtra) {
+            if($this->filterExtra == 'tech') {
+                $ordersQuery->where('orders.tech', '1' );
+            }elseif($this->filterExtra == 'resit') {
+                $ordersQuery->where('orders.resit', 'on' );
+            }elseif($this->filterExtra == 'failedjob') {
+                $ordersQuery->where('orders.is_fail', '1' );                
+            }elseif($this->filterExtra == '1') {
+                $ordersQuery->where('orders.services', 'First Class Work' );                
+            }
+        }
+
+        if($this->filterEditedOn || $this->filterFromDate || $this->filterToDate) {
+            if (!$this->filterEditedOn) {               
+                $this->filterEditedOn = 'order_date'; // for default search by order_date if type not selected. 
+            }
+
+            if (!$this->filterFromDate && $this->filterToDate && $this->filterEditedOn) {               
+                session()->flash('warning', 'Please select a from date to search with a single date.');
+            }
+
+            if ($this->filterFromDate && $this->filterToDate && $this->filterEditedOn) {
+                if($this->filterEditedOn == 'draft_date') {
+                    $ordersQuery->whereBetween($this->filterEditedOn, [$this->filterFromDate, $this->filterToDate])->where('draftrequired' , 'y' );
+                }else{
+                    $ordersQuery->whereBetween($this->filterEditedOn, [$this->filterFromDate, $this->filterToDate]);
+                }                
+            }elseif ($this->filterFromDate && !$this->filterToDate && $this->filterEditedOn) {
+                if($this->filterEditedOn == 'draft_date') {
+                    $ordersQuery->where($this->filterEditedOn, $this->filterFromDate)->where('draftrequired' , 'y' );
+                }else {
+                    $ordersQuery->where($this->filterEditedOn, $this->filterFromDate);
+                }                
+            }
+        }
+
         $data['orders'] = $ordersQuery->paginate(10);
-        // echo '<pre>'; print_r($data['orders']) ; exit;
+        $data['Status'] = Status::all();
+        $data['Team'] = Writer::all();
+        
         return view('livewire.project-team.project-team', compact('data'));
     }
     public function edit($id)
@@ -121,8 +205,7 @@ class ProjectTeam extends Component
             // Check if the input is a numeric value            
             $order->pages = $this->word;
             
-            if( $this->status == 'Completed')
-            {
+            if( $this->status == 'Completed') {
                 $order->projectstatus = $this->status;
                 $order->status_date = Carbon::now('Asia/Kolkata');
                 $order->status_by   = auth()->user()->name;
@@ -137,9 +220,7 @@ class ProjectTeam extends Component
                 ];
                 Mail::to('vikramsuthar.wm@gmail.com')->cc('vikramsuthar.wm@gmail.com')->send(new OrderComplete($orderData));
             
-            }
-            elseif( $this->status == 'Delivered')
-            {
+            }elseif( $this->status == 'Delivered') {
                 // Check additional condition
                 if ((int)$order->amount - (int)$order->received_amount !== 0) {
                     $this->addError('status', 'Order cannot be marked as Delivered if there is any due payment remaining.');
@@ -147,9 +228,7 @@ class ProjectTeam extends Component
                 }
                                
                 $order->projectstatus = $this->status;
-            }
-            else
-            {
+            }else {
                 $order->projectstatus = $this->status;
                 $order->status_date = Carbon::now('Asia/Kolkata');
                 $order->status_by   = auth()->user()->name;
@@ -162,18 +241,13 @@ class ProjectTeam extends Component
             $order->module_code = $this->module_code;
             $order->chapter = $this->chapter;
             
-            if( $this->writer_name == 'team 13')
-            {
+            if( $this->writer_name == 'team 13') {
                 $order->writer_name = $this->writer_name;
                 $order->admin_id =  '8392'; 
-            } 
-             elseif($this->writer_name == 'team 02')
-            {
+            }elseif($this->writer_name == 'team 02') {
                 $order->writer_name = $this->writer_name;
                 $order->admin_id =  '10123'; 
-            }
-            else
-            {
+            }else {
                 $order->writer_name = $this->writer_name;
                 $order->admin_id =  '0'; 
             }

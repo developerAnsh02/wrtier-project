@@ -14,6 +14,33 @@
     </div>
     <div class="row">
         <div class="col-12">
+            @if(session()->has('message'))
+                <div class="alert alert-success alert-dismissible" id="alert">
+                    {{ session()->get('message') }}
+                </div>
+            @endif
+            @if(session()->has('warning'))
+                <div class="alert alert-warning alert-dismissible" id="alert">
+                    {{ session()->get('warning') }}
+                </div>
+            @endif
+            <style>
+                #alert {
+                animation: fadeOut 2s forwards;
+                animation-delay: 1s;
+                }
+                @keyframes fadeOut {
+                to {
+                    opacity: 0;
+                    visibility: hidden;
+                }
+                }
+            </style>
+            <script>
+                setTimeout(function() {
+                    document.getElementById("alert").style.display = "none";
+                }, 15000);
+            </script>
             <div class="card card-xxl-stretch mb-5 mb-xl-8">
                 <div class="card-header">
                     <h3 class="card-title align-items-start flex-column">
@@ -28,28 +55,21 @@
                             </div>     
 
                             <div class="col-lg-3 fv-row fv-plugins-icon-container">
-                                <select wire:model="filterByStatus" name="status" id="status" aria-label="Select a Language" data-control="select2" data-placeholder="Status" class="form-control form-control-solid form-select-lg" data-select2-id="select2-data-13-mh4q" tabindex="-1" >
-                                    <option value="" >Select Status</option>
-                                    <option  value="Not Assign">Not Assign</option>
-                                    <option value="In Progress" >In Progress</option>
-                                    <option value="Draft Ready" >Draft Ready</option>
-                                    <option value="Draft Feedback" >Draft Feedback</option>
-                                    <option value="Attached to Email (Draft) " >Attached to Email (Draft) </option>
-                                    <option value="Draft Delivered">Draft Delivered</option>
-                                    <option value="Complete file Ready">Complete file Ready</option>
-                                    <option value="Feedback">Feedback</option>
-                                    <option value="Feedback Delivered">Feedback Delivered</option>
-                                    <option value="Attached to Email (Complete file) ">Attached to Email (Complete file) </option>
-                                    <option value="Delivered" >Delivered</option>
-                                    <option value="Hold">Hold</option>
+                                <select wire:model="filterByStatus" name="status" id="status" aria-label="Select a Language" data-control="select2" placeholder="Status" class="form-control form-control-solid form-select-lg" data-select2-id="select2-data-13-mh4q" tabindex="-1" >
+                                    <option value="" >Select a status</option>                        
+                                    @foreach($data['Status'] as $Status)
+                                        <option value="{{$Status->status}}">{{$Status->status}}</option>
+                                    @endforeach
                                 </select>
                                 <div class="fv-plugins-message-container invalid-feedback"></div>
                             </div>
                         
                             <div class="col-lg-3 fv-row fv-plugins-icon-container">
-                                <select wire:model="filterSubWriter" name="SubWriter" id="SubWriter" aria-label="Select a Timezone" data-placeholder="Search By Writer TL" class="form-control form-control-solid form-select-lg" tabindex="-1">
-                                    <option value="">Select Writer Name</option>
-                                    
+                                <select wire:model="filterByTeam" name="team" id="team" aria-label="Select a Timezone" placeholder="Search By Team" class="form-control form-control-solid form-select-lg" tabindex="-1">
+                                    <option value="" >Select a Team</option>                        
+                                    @foreach($data['Team'] as $writer)
+                                        <option value="{{$writer->writer_name}}">{{$writer->writer_name}}</option>
+                                    @endforeach
                                 </select>
                             </div>
 
@@ -64,6 +84,25 @@
                                     <option value="1" >First Class Work</option>
                                     <option value="failedjob">Failed Job</option>
                                 </select>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-lg-3 fv-row">
+                                <select wire:model="filterEditedOn" name="edited_on" id="edited_on" class="form-select form-select-solid form-select-lg">
+                                    <option value="">Date Type</option>
+                                    <option value="order_date">Order Date</option>
+                                    <option value="delivery_date">Delivery Date</option>
+                                    <option value="writer_deadline">Writer Deadline</option>
+                                    <option value="draft_date">Draft Date</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-3 fv-row">
+                                <input wire:model="filterFromDate" type="date" name="fromDate" id="fromDate" class="form-control form-control-solid form-select-lg" placeholder="From Date">
+                            </div>
+
+                            <div class="col-md-3 fv-row">
+                                <input wire:model="filterToDate" type="date" name="toDate" id="toDate" class="form-control form-control-solid form-select-lg" placeholder="To Date">
                             </div>
                         </div>
                         
