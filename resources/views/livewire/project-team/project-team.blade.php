@@ -42,10 +42,16 @@
                 }, 15000);
             </script>
             <div class="card card-xxl-stretch mb-5 mb-xl-8">
-                <div class="card-header">
+                <div class="card-header d-flex">
                     <h3 class="card-title align-items-start flex-column">
                         <span class="card-label fs-5 mb-1">Filter</span>
                     </h3>
+                    <!-- Preloader (optional) -->
+                    <div wire:loading wire:target="applyFilters"style="width: 100%; text-align: center;">                            
+                        <div class="spinner-border" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>                            
+                    </div>
                 </div>
                 <div class="card-body py-3">
                     <form wire:submit.prevent="applyFilters">

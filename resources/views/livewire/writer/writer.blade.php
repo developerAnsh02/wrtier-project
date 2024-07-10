@@ -230,7 +230,7 @@
                                 <select id="status" wire:model="status" class="form-control">
                                     <option value=""></option>
                                     <option value="Hold">Hold</option>
-                                    <option value="Completed">Completed</option>
+                                    <option value="Complete file Ready">Complete file Ready</option>
                                     
                                 </select>
                             </div>                            
