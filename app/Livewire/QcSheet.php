@@ -68,6 +68,7 @@ class QcSheet extends Component
         $this->filterFromDate = '';
         $this->filterToDate = '';
         $this->search = '';
+        $this->resetPage();
     }
 
     public function applyFilters()

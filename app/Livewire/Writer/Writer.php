@@ -49,6 +49,7 @@ class Writer extends Component
         $this->filterToDateApply = '';
         $this->filterFromDate = '';
         $this->filterToDate = '';
+        $this->resetPage();
     }
 
     public function render()

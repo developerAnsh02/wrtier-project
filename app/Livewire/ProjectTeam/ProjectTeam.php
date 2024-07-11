@@ -70,6 +70,7 @@ class ProjectTeam extends Component
         $this->filterEditedOn = '';
         $this->filterFromDate = '';
         $this->filterToDate = '';
+        $this->resetPage();
     }
     public function render()
     {

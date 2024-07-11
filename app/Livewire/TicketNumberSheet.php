@@ -58,5 +58,6 @@ class TicketNumberSheet extends Component
     public function resetFilters()
     {
         $this->reset(['orderCode', 'fromDate', 'toDate', 'status']);
+        $this->resetPage();
     }
 }

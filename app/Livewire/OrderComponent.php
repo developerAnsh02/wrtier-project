@@ -81,6 +81,7 @@ class OrderComponent extends Component
         $this->filterToDateRangeApply = '';
         $this->filterFromDateRange = '';
         $this->filterToDateRange = '';
+        $this->resetPage();
     }
 
     public function applyFilters()
