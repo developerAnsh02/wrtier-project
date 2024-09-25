@@ -22,7 +22,7 @@ class Order extends Model
 
     public function mulsubwriter()
     {
-        return $this->hasMany(multipleswiter::class, 'order_id', 'id')->with(['user' => function ($query) {
+        return $this->hasMany(Multipleswiter::class, 'order_id', 'id')->with(['user' => function ($query) {
             $query->select('id', 'name');
         }]);
     }
