@@ -6,6 +6,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\User;
 use App\Models\Order;
+use App\Models\Comment;
 use App\Models\Multipleswiter;
 
 class Writer extends Component
@@ -13,6 +14,12 @@ class Writer extends Component
     use WithPagination;
 
     protected $paginationTheme = 'bootstrap';
+
+    // for comments
+    public $commentId;
+    public $isCommentModalOpen = false;
+    public $selectedOrderId;
+    public $comments = [];
 
     public $isEditModalOpen = false;
     public $orderId;
@@ -152,5 +159,19 @@ class Writer extends Component
     public function closeEditModal()
     {
         $this->isEditModalOpen = false;
+    }
+
+    public function viewComments($orderId)
+    {
+        $this->orderId = $orderId;
+        $this->selectedOrderId = Order::find($orderId)->order_id;
+        $this->comments = Comment::where('order_id', $orderId)->where('is_deleted', false)->orderByDesc('created_at')->get();
+        $this->isCommentModalOpen = true;
+    }
+    public function closeCommentModal()
+    {
+        $this->isCommentModalOpen = false;
+        $this->comment = '';
+        $this->commentId = null;
     }
 }

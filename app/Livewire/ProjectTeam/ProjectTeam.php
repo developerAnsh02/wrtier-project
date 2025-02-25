@@ -9,6 +9,7 @@ use Mail;
 use App\Mail\OrderComplete;
 use App\Models\User;
 use App\Models\Order;
+use App\Models\Comment;
 use App\Models\Status;
 use App\Models\Writer;
 use App\Models\Paper;
@@ -19,6 +20,12 @@ class ProjectTeam extends Component
 
     protected $paginationTheme = 'bootstrap';
 
+    // for comments
+    public $commentId;
+    public $isCommentModalOpen = false;
+    public $selectedOrderId;
+    public $comments = [];
+    
     // edit modal var start
     public $isEditModalOpen = false;
     public $orderId;
@@ -259,5 +266,19 @@ class ProjectTeam extends Component
                 $this->isEditModalOpen = false;
             }
         }        
+    }
+
+    public function viewComments($orderId)
+    {
+        $this->orderId = $orderId;
+        $this->selectedOrderId = Order::find($orderId)->order_id;
+        $this->comments = Comment::where('order_id', $orderId)->where('is_deleted', false)->orderByDesc('created_at')->get();
+        $this->isCommentModalOpen = true;
+    }
+    public function closeCommentModal()
+    {
+        $this->isCommentModalOpen = false;
+        $this->comment = '';
+        $this->commentId = null;
     }
 }

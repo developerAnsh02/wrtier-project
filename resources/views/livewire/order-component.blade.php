@@ -219,6 +219,7 @@
                                     <th>Words</th>
                                     <th>Writer&TL</th>
                                     <th>Deadline</th>
+                                    <th style="min-width: 200px;">Comments</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -334,7 +335,25 @@
                                             </div>
 										@endif
                                     </td>
-                                    
+                                    <td>
+                                        @php
+                                            $latestComment = $order->comments->where('is_deleted', false)->sortByDesc('created_at')->first();
+                                        @endphp
+                                        <div>
+                                            @if ($latestComment)
+                                                {{ Str::limit($latestComment->comment, 50) }}  
+                                                <small class="text-muted">({{ $latestComment->user->name }})</small>
+                                            @else
+                                                <span class="text-muted">No comments yet</span>
+                                            @endif
+                                        </div>
+
+                                        <!-- View Comments Button -->
+                                        <button wire:click="viewComments({{ $order->id }})" class="btn btn-sm btn-info mt-2">
+                                            View Comments
+                                        </button>
+                                    </td>
+
                                     <td class="text-center">
                                         <button wire:click="edit({{ $order->id }})" class="btn btn-icon btn-bg-light btn-active-color-primary btn-sm me-1">
                                             <span class="svg-icon svg-icon-3">
@@ -468,5 +487,57 @@
         </div>
         <div class="modal-backdrop fade show"></div>
     @endif
+    <!-- Comments Modal -->
+    @if($isCommentModalOpen)
+        <div class="modal fade show d-block" style="background: rgba(0, 0, 0, 0.5);">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Comments for Order #{{ $selectedOrderId }}</h5>
+                        <button type="button" wire:click="closeCommentModal" class="btn-close"></button>
+                    </div>
+                    <div class="modal-body" style="max-height: 300px; overflow-y: auto;">
+                        @if($comments->isEmpty())
+                            <p class="text-center text-muted">No comments available.</p>
+                        @else
+                            @foreach ($comments as $comment)
+                                @php
+                                    $isOwnComment = auth()->user()->id == $comment->user_id;
+                                @endphp
+                                <div class="d-flex mb-2 {{ $isOwnComment ? 'justify-content-end' : 'justify-content-start' }}">
+                                    <div class="p-2 border rounded"
+                                        style="max-width: 100%; {{ $isOwnComment ? 'background: #dcf8c6; text-align: right;' : 'background: #f1f0f0; text-align: left;' }}">
+                                        {{ $comment->comment }} <br>
+                                        <small class="text-muted d-block">{{ $comment->created_at->format('d M, Y h:i A') }}</small>
+                                        <small>({{ $comment->user->name }})</small>
+                                        
+                                        @if ($isOwnComment && auth()->user()->role_id == 8)
+                                            <button wire:click="editComment({{ $comment->id }})" class="btn btn-sm btn-warning">
+                                                <span class="svg-icon svg-icon-3"><li class="fa fa-edit"></li></span>
+                                            </button>
+                                            <button wire:click="deleteComment({{ $comment->id }})" class="btn btn-sm btn-danger">
+                                                <span class="svg-icon svg-icon-3"><li class="fa fa-trash"></li></span>
+                                            </button>
+                                        @endif
+                                    </div>
+                                </div>
+                            @endforeach
+                        @endif
+                    </div>
 
+                    <div class="modal-footer">
+                        <textarea wire:model="comment" class="form-control" placeholder="Write your comment..."></textarea>
+                        @error('comment') <span class="text-danger">{{ $message }}</span> @enderror
+
+                        <button type="button" wire:click="closeCommentModal" class="btn btn-secondary">Close</button>
+                        @if ($commentId)
+                            <button type="button" wire:click="updateComment" class="btn btn-success">Update</button>
+                        @else
+                            <button type="button" wire:click="addComment" class="btn btn-primary">Submit</button>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 </div>

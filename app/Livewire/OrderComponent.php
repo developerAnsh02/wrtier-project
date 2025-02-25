@@ -7,6 +7,8 @@ use Livewire\WithPagination;
 use App\Models\User;
 use App\Models\Order;
 use App\Models\multipleswiter;
+use App\Models\Comment;
+use Illuminate\Support\Facades\Auth;
 
 class OrderComponent extends Component
 {
@@ -14,6 +16,12 @@ class OrderComponent extends Component
 
     protected $paginationTheme = 'bootstrap';
     
+    // for comments
+    public $comment;
+    public $commentId;
+    public $isCommentModalOpen = false;
+    public $selectedOrderId;
+    public $comments = [];
     // modal var
     public $isEditModalOpen = false;
     public $order; //for edit modal
@@ -49,6 +57,7 @@ class OrderComponent extends Component
     {
         $this->resetFilters();
         $this->filterSubWriters();
+        $this->refreshOrders();
     }
     
     public function filterSubWriters()
@@ -94,7 +103,7 @@ class OrderComponent extends Component
 
     public function render()
     {
-        $ordersQuery = Order::with(['writer:id,name', 'subwriter:id,name','mulsubwriter' => function ($query) {$query->with('user:id,name');}])
+        $ordersQuery = Order::with(['writer:id,name', 'subwriter:id,name','mulsubwriter' => function ($query) {$query->with('user:id,name');},'comments.user'])
         ->where('admin_id', auth()->user()->id)->orderBy('id', 'desc')
         ->select([
             'id', 'order_id', 'services', 'typeofpaper', 'pages', 'title',
@@ -372,4 +381,96 @@ class OrderComponent extends Component
             'selectedWriters' => 'required|array',
         ]);
     }
+
+    public function refreshOrders()
+    {
+        $this->orders = Order::with('comments.user')->paginate(10);
+    }
+
+    public function viewComments($orderId)
+    {
+        $this->orderId = $orderId;
+        $this->selectedOrderId = Order::find($orderId)->order_id;
+        $this->comments = Comment::where('order_id', $orderId)->where('is_deleted', false)->orderByDesc('created_at')->get();
+        $this->isCommentModalOpen = true;
+    }
+
+    public function addComment()
+    {
+        if (Auth::user()->role_id != 8) {
+            session()->flash('error', 'You are not allowed to comment.');
+            return;
+        }
+
+        $this->validate(['comment' => 'required|min:3']);
+
+        Comment::create([
+            'order_id' => $this->orderId,
+            'user_id' => Auth::id(),
+            'comment' => $this->comment,
+        ]);
+
+        $this->comment = '';
+        $this->viewComments($this->orderId);
+        session()->flash('message', 'Comment added successfully!');
+    }
+
+    public function editComment($commentId)
+    {
+        $comment = Comment::findOrFail($commentId);
+
+        if (Auth::user()->id != $comment->user_id) {
+            session()->flash('error', 'You can only edit your own comments.');
+            return;
+        }
+
+        $this->commentId = $comment->id;
+        $this->comment = $comment->comment;
+    }
+
+    public function updateComment()
+    {
+        if (!$this->commentId) return;
+
+        $comment = Comment::findOrFail($this->commentId);
+
+        if (Auth::user()->id != $comment->user_id) {
+            session()->flash('error', 'You can only edit your own comments.');
+            return;
+        }
+
+        $this->validate(['comment' => 'required|min:3']);
+
+        $comment->update(['comment' => $this->comment]);
+
+        $this->commentId = null;
+        $this->comment = '';
+        $this->viewComments($this->orderId);
+        session()->flash('message', 'Comment updated successfully!');
+    }
+
+    public function deleteComment($commentId)
+    {
+        $comment = Comment::findOrFail($commentId);
+
+        if (Auth::user()->id != $comment->user_id) {
+            session()->flash('error', 'You can only delete your own comments.');
+            return;
+        }
+
+        // Soft delete by setting `is_deleted` to true
+        $comment->update(['is_deleted' => true]);
+
+        $this->viewComments($this->orderId);
+        session()->flash('message', 'Comment deleted successfully!');
+    }
+
+
+    public function closeCommentModal()
+    {
+        $this->isCommentModalOpen = false;
+        $this->comment = '';
+        $this->commentId = null;
+    }
+    
 }
