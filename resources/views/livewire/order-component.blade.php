@@ -320,7 +320,11 @@
                                         @endif
                                     </td>
                                     <td>
-                                        {{ \Carbon\Carbon::parse($order->writer_deadline)->format('jS M Y') }}
+                                        @if($order->writer_deadline && $order->writer_deadline != '0000-00-00')
+                                            {{ \Carbon\Carbon::parse($order->writer_deadline)->format('jS M Y') }}
+                                        @else
+                                            N/A
+                                        @endif
                                         @if($order->draftrequired == 'Y')
 											<br>
 											<div class="label label-table label-info">
