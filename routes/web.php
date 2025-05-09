@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\OrderController;
 use App\Livewire\QcSheet;
+use App\Livewire\TaskReport;
 use NunoMaduro\Collision\Writer;
 use App\Models\Multipleswiter;
 /*
@@ -141,7 +142,10 @@ Route::middleware(['auth', 'verified', 'role'])->group(function ()
 
     route::get('/ticket-sheet', [OrderController::class ,  'tickerSheet'])->name('ticket-sheet');
 
-
+    
 });
+Route::get('/task-reports', function () {
+    return view('task-reports.index');
+})->name('task-reports.index');
 
 require __DIR__.'/auth.php';
