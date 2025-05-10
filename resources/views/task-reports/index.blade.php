@@ -1,6 +1,5 @@
-{{-- resources/views/task-reports/index.blade.php --}}
-@extends('layouts.app') {{-- Or your layout file --}}
+@extends('layouts.app')
 
 @section('content')
-    @livewire('task-report') {{-- This is the Livewire component --}}
+    @livewire('writer-task-report') 
 @endsection

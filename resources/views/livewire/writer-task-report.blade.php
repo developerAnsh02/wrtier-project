@@ -162,7 +162,6 @@
                                     <th>Word Count</th>
                                     <th>Comments</th>
                                     <th>Time</th>
-                                    <!-- <th>Actions</th> -->
                                     @if($reports['is_draft'] ?? true)
                                         <th>Actions</th>
                                     @endif
@@ -177,21 +176,8 @@
                                         <td>{{ number_format($task['word_count']) }}</td>
                                         <td>{{ \Illuminate\Support\Str::limit($task['comments'], 50) }}</td>
                                         <td>{{ \Carbon\Carbon::parse($task['timestamp'])->format('h:i A') }}</td>
-                                        <!-- <td>
-                                            <button wire:click="editTask({{ $index }})" 
-                                                    class="btn btn-sm btn-warning me-1"
-                                                    title="Edit">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button wire:click="deleteTask({{ $index }})" 
-                                                    class="btn btn-sm btn-danger"
-                                                    title="Delete">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </td> -->
                                         @if($reports['is_draft'] ?? false)
                                             <td>
-                                                <!-- Show Edit/Delete buttons when in draft mode -->
                                                 <button wire:click="editTask({{ $index }})" 
                                                         class="btn btn-sm btn-warning me-1"
                                                         title="Edit">
@@ -220,20 +206,33 @@
                                     <td>{{ number_format($reports['total_words'] ?? 0) }}</td>
                                     <td colspan="6" class="text-end">                                        
                                         @if(!($reports['is_draft'] ?? true))
-                                            <!-- Show Request to TL button when not in draft mode -->
-                                            <button wire:click="requestEdit({{ $index }})" 
-                                                    class="btn btn-sm btn-info"
-                                                    title="Request Edit from TL">
-                                                <i class="fas fa-user-edit"></i> Request Edit
-                                            </button>
-                                            <span class="text-success ms-2">
-                                                <i class="fas fa-check-circle"></i> Submitted
+                                            @if(($reports['edit_request_status'] ?? null) === 'pending')
+                                                <span class="text-info me-2">
+                                                    <i class="fas fa-clock"></i> Edit Request Pending
+                                                    <small class="d-block text-muted">
+                                                        Reason: {{ $reports['edit_reason'] }}
+                                                    </small>
+                                                </span>
+                                            @elseif(($reports['edit_request_status'] ?? null) === 'approved')
+                                                <span class="text-success me-2">
+                                                    <i class="fas fa-check-circle"></i> Edit Approved
+                                                </span>
+                                            @else
+                                                <button wire:click="requestEdit" 
+                                                        class="btn btn-sm btn-info me-2"
+                                                        title="Request Edit from TL">
+                                                    <i class="fas fa-user-edit"></i> Request Edit
+                                                </button>
+                                            @endif
+                                            <span class="text-success">
+                                                <i class="fas fa-check-circle"></i> 
+                                                Submitted: {{ $reports['submitted_at'] ? \Carbon\Carbon::parse($reports['submitted_at'])->format('M d, h:i A') : 'Just now' }}
                                             </span>
                                         @else
                                             <button wire:click="finalSubmission" 
                                                 class="btn btn-primary"
                                                 @if(!($reports['is_draft'] ?? true)) disabled @endif>
-                                                Final Submission
+                                                Submit
                                             </button>
                                         @endif
                                     </td>
@@ -265,6 +264,47 @@
                     </button>
                     <button type="button" class="btn btn-danger" wire:click="confirmDelete">
                         Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
+     <!-- Edit Request Modal -->
+     @if($showRequestModal)
+    <div class="modal fade show" style="display: block; background: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Request Edit Permission</h5>
+                    <button type="button" class="btn-close btn-close-white" wire:click="cancelRequest"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        You're requesting to edit a submitted report for {{ \Carbon\Carbon::parse($task_date)->format('M d, Y') }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Reason for Edit Request*</label>
+                        <textarea wire:model="editRequestReason" 
+                                class="form-control" 
+                                rows="4"
+                                placeholder="Please explain why you need to edit this report (10-55 characters)"
+                                required></textarea>
+                        @error('editRequestReason')
+                            <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
+                        <div class="text-end small mt-1">
+                            {{ strlen($editRequestReason) }}/55 characters
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" wire:click="cancelRequest">
+                        <i class="fas fa-times me-1"></i> Cancel
+                    </button>
+                    <button type="button" class="btn btn-primary" wire:click="submitEditRequest">
+                        <i class="fas fa-paper-plane me-1"></i> Submit Request
                     </button>
                 </div>
             </div>
