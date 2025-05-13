@@ -70,7 +70,7 @@
                                                     </button>
                                                     @if($report->edit_request_status === 'pending')                                                        
                                                         <button wire:click="show({{ $report->id }})" class="btn btn-sm btn-primary">
-                                                                Review
+                                                            Approve / Reject
                                                         </button>
                                                     @endif
                                                 </td>

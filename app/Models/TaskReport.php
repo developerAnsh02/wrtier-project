@@ -32,4 +32,9 @@ class TaskReport extends Model
     // {
     //     return json_decode($this->tasks, true) ?? [];
     // }
+    public function getTasksArrayAttribute()
+    {
+        return json_decode($this->tasks, true) ?? [];
+    }
+
 }

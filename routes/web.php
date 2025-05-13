@@ -150,5 +150,8 @@ Route::get('/task-reports', function () {
 Route::get('/task-review', function () {
     return view('task-reports.task-review');
 })->name('task-review.index');
+Route::get('/admin-task-report', function () {
+    return view('task-reports.admin-task-report');
+})->name('admin.task.report');
 
 require __DIR__.'/auth.php';
