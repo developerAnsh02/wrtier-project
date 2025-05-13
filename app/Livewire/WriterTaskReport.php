@@ -6,8 +6,8 @@ use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 use App\Models\TaskReport as TaskReportModel;
 use App\Models\Order;
-use App\Models\User;
 use App\Models\Multipleswiter;
+use Illuminate\Support\Carbon;
 
 class WriterTaskReport extends Component
 {
@@ -30,6 +30,8 @@ class WriterTaskReport extends Component
     public $showRequestModal = false;
     public $editRequestReason = '';
 
+    public $noResultsFound = false;    
+
     public function mount()
     {
         if (Auth::user()->role_id != 7) {
@@ -41,8 +43,10 @@ class WriterTaskReport extends Component
 
     public function loadReports()
     {
+        // First try to get the latest draft copy (child report)
         $report = TaskReportModel::where('user_id', Auth::id())
             ->where('task_date', $this->task_date)
+            ->where('is_hidden_from_writer', false)
             ->orderBy('version', 'desc')
             ->first();
 
@@ -86,19 +90,14 @@ class WriterTaskReport extends Component
 
     public function searchOrder()
     {
+        $this->resetErrorBag();
         if (strlen($this->searchOrderCode) < 2) {
             $this->filteredOrderCodes = [];
             $this->showOrderCodeDropdown = false;
+            $this->noResultsFound = false;
             return;
         }
-
-        // $this->filteredOrderCodes = Order::where('wid', Auth::id())
-        //     ->where('order_id', 'like', '%' . $this->searchOrderCode . '%')
-        //     ->orderByDesc('id')
-        //     ->limit(10)
-        //     ->pluck('order_id')
-        //     ->toArray();
-
+        
         // Get order IDs from Multipleswiter for current user
         $multipleWriters = Multipleswiter::where('user_id', auth()->id())->get();
         $orderIds = $multipleWriters->pluck('order_id')->toArray();
@@ -111,7 +110,9 @@ class WriterTaskReport extends Component
             ->pluck('order_id')
             ->toArray();
 
-        $this->showOrderCodeDropdown = !empty($this->filteredOrderCodes);
+        // $this->showOrderCodeDropdown = !empty($this->filteredOrderCodes);
+        $this->noResultsFound = empty($this->filteredOrderCodes); 
+        $this->showOrderCodeDropdown = true; 
     }
 
     public function selectOrderCode($code)
@@ -128,6 +129,11 @@ class WriterTaskReport extends Component
 
     public function editTask($index)
     {
+        if (isset($this->reports['is_hidden_from_writer']) && $this->reports['is_hidden_from_writer']) {
+            session()->flash('error', 'Cannot edit an archived report');
+            return;
+        }
+        
         $this->editingIndex = $index;
         $this->newReport = $this->reports['tasks'][$index];
         $this->searchOrderCode = $this->reports['tasks'][$index]['order_code'];
@@ -135,6 +141,13 @@ class WriterTaskReport extends Component
 
     public function deleteTask($index)
     {
+        $this->validate([
+            'task_date' => ['required', 'date', function ($attribute, $value, $fail) {
+                if (Carbon::parse($value)->toDateString() !== Carbon::today()->toDateString()) {
+                    $fail('You can only delete reports for today.');
+                }
+            }]
+        ]);
         $this->confirmingDelete = $index;
     }
 
@@ -163,20 +176,26 @@ class WriterTaskReport extends Component
     }
 
     public function addReport()
-    {
+    {        
         $this->validate([
+            'task_date' => ['required', 'date', function ($attribute, $value, $fail) {
+                if (Carbon::parse($value)->toDateString() !== Carbon::today()->toDateString()) {
+                    $fail('You can only add/edit tasks for today\'s date');
+                }
+            }],
             'newReport.order_code' => 'required|string',
             'newReport.nature' => 'required|string',
             'newReport.word_count' => 'required|integer|min:0',
             'newReport.comments' => 'required|string|max:500'
+        ], [
+            'newReport.order_code.required' => 'Order code is required.',
+            'newReport.nature.required' => 'Please select the nature of the task.',
+            'newReport.word_count.required' => 'Word count is required.',
+            'newReport.word_count.integer' => 'Word count must be a number.',
+            'newReport.word_count.min' => 'Word count must be at least 0.',
+            'newReport.comments.required' => 'Comments are required.',
+            'newReport.comments.max' => 'Comments cannot exceed 500 characters.',
         ]);
-
-        // if (!Order::where('wid', Auth::id())
-        //     ->where('order_id', $this->newReport['order_code'])
-        //     ->exists()) {
-        //     $this->addError('newReport.order_code', 'This order code is not assigned to you.');
-        //     return;
-        // }
 
         // Get order IDs assigned to current user from Multipleswiter
         $multipleWriters = Multipleswiter::where('user_id', auth()->id())->pluck('order_id')->toArray();
@@ -191,10 +210,29 @@ class WriterTaskReport extends Component
             return;
         }
 
-        $report = TaskReportModel::firstOrNew([
-            'user_id' => Auth::id(),
-            'task_date'=> $this->task_date,
-        ]);
+        // Get the current report (the copy we're working with)
+        $report = TaskReportModel::find($this->reports['id'] ?? null);
+
+        // If no report exists yet (brand new report)
+        if (!$report) {
+            $version = 1; // Start new reports at version 1
+            $parentId = null;
+            
+            // If we're editing an existing report (creating a copy)
+            if (isset($this->reports['id'])) {
+                $parentReport = TaskReportModel::find($this->reports['id']);
+                $version = $parentReport->version + 1;
+                $parentId = $parentReport->id;
+            }
+
+            $report = new TaskReportModel([
+                'user_id' => Auth::id(),
+                'task_date' => $this->task_date,
+                'is_draft' => true,
+                'version' => $version,
+                'parent_id' => $parentId
+            ]);
+        }
 
         $existingTasks = json_decode($report->tasks, true) ?? [];
 
@@ -224,6 +262,14 @@ class WriterTaskReport extends Component
 
     public function finalSubmission()
     {
+        $this->validate([
+            'task_date' => ['required', 'date', function ($attribute, $value, $fail) {
+                if (Carbon::parse($value)->toDateString() !== Carbon::today()->toDateString()) {
+                    $fail('You can only submit reports for today');
+                }
+            }]
+        ]);
+        
         $report = TaskReportModel::where('user_id', Auth::id())
             ->where('task_date', $this->task_date)
             ->orderBy('version', 'desc')
@@ -238,14 +284,18 @@ class WriterTaskReport extends Component
             ]);
 
             $this->loadReports();
-            session()->flash('message', 'Task report submitted successfully!');
-        } else {
-            session()->flash('error', 'No tasks found to submit.');
         }
     }
     
     public function requestEdit()
     {
+        $this->validate([
+            'task_date' => ['required', 'date', function ($attribute, $value, $fail) {
+                if (Carbon::parse($value)->toDateString() !== Carbon::today()->toDateString()) {
+                    $fail('You can only request edits for today \'s report');
+                }
+            }]
+        ]);
         $report = TaskReportModel::where('user_id', Auth::id())
             ->where('task_date', $this->task_date)
             ->orderBy('version', 'desc')
@@ -291,7 +341,15 @@ class WriterTaskReport extends Component
         $this->editRequestReason = '';
     }
 
-    // ... [Keep all other existing methods] ...
+    public function resetSearch()
+    {
+        $this->reset([
+            'filteredOrderCodes',
+            'showOrderCodeDropdown',
+            'searchOrderCode',
+            'noResultsFound'
+        ]);
+    }
 
     public function render()
     {

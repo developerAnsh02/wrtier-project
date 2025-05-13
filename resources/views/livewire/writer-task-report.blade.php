@@ -14,6 +14,18 @@
             </div>
         </div>
     </div>
+   <!-- Error Display Section (place this near the top of your form) -->
+    @if($errors->any())        
+        @foreach($errors->all() as $error)
+            <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center justify-content-between p-2" role="alert">
+                <div>
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    {{ $error }}
+                </div>
+                <button type="button" class="btn-close h-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endforeach        
+    @endif
 
     <!-- Search Section -->
     @if($reports['is_draft'] ?? false)
@@ -25,32 +37,49 @@
                         <i class="fas fa-search me-2"></i> Search Order Code
                     </h5>
                 </div>
-                <div class="card-body">
+                <div class="card-body">                    
                     <div class="row">
                         <div class="col-md-8 position-relative">
                             <div class="input-group">
                                 <input wire:model.live.debounce.300ms="searchOrderCode"
-                                       type="text"
-                                       class="form-control"
-                                       placeholder="Enter order code..."
-                                       autocomplete="off">
+                                    wire:keydown.escape="resetSearch"  
+                                    type="text"
+                                    class="form-control"
+                                    placeholder="Enter order code..."
+                                    autocomplete="off">
                                 <button class="btn btn-primary" type="button"
                                         wire:click="searchOrder">
-                                    Search
+                                    <i class="fas fa-search me-1"></i> Search
                                 </button>
                             </div>
                             
                             @if($showOrderCodeDropdown)
                                 <div class="mt-2 border rounded shadow-sm position-absolute w-100 bg-white z-index-1" style="max-height: 200px; overflow-y: auto;">
-                                    @forelse($filteredOrderCodes as $code)
-                                        <div class="p-2 border-bottom hover-bg-gray" 
-                                             wire:click="selectOrderCode('{{ $code }}')"
-                                             style="cursor: pointer;">
-                                            {{ $code }}
-                                        </div>
-                                    @empty
-                                        <div class="p-2 text-muted">No orders found</div>
-                                    @endforelse
+                                    <!-- Close Button -->
+                                    <div class="position-absolute end-0 top-0 p-1">
+                                        <button wire:click="resetSearch" 
+                                                class="btn btn-sm btn-link text-muted"
+                                                title="Close">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- Results List -->
+                                    <div class="pt-3">  <!-- Added padding to accommodate close button -->
+                                        @forelse($filteredOrderCodes as $code)
+                                            <div class="p-2 border-bottom hover-bg-gray" 
+                                                wire:click="selectOrderCode('{{ $code }}')"
+                                                style="cursor: pointer;">
+                                                <i class="fas fa-file-alt me-2 text-primary"></i>
+                                                {{ $code }}
+                                            </div>
+                                        @empty
+                                            <div class="p-2 text-center text-muted">
+                                                <i class="fas fa-exclamation-circle me-2"></i>
+                                                No orders found for "{{ $searchOrderCode }}"
+                                            </div>
+                                        @endforelse
+                                    </div>
                                 </div>
                             @endif
                         </div>
@@ -62,7 +91,7 @@
     @endif
     
     <!-- Task Form -->
-    @if(!empty($newReport['order_code']))
+    @if(!empty($newReport['order_code']))    
     <div class="row mb-4">
         <div class="col-12">
             <div class="card">

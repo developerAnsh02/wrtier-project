@@ -147,5 +147,8 @@ Route::middleware(['auth', 'verified', 'role'])->group(function ()
 Route::get('/task-reports', function () {
     return view('task-reports.index');
 })->name('task-reports.index');
+Route::get('/task-review', function () {
+    return view('task-reports.task-review');
+})->name('task-review.index');
 
 require __DIR__.'/auth.php';
