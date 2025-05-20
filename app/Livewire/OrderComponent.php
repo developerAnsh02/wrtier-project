@@ -53,6 +53,10 @@ class OrderComponent extends Component
     public $filterFromDateRangeApply;
     public $filterToDateRangeApply;
     
+    // for word count of each writer
+    public $writerWordCounts = []; // key: user_id, value: word_count
+    protected $rules = [];
+
     public function mount()
     {
         $this->resetFilters();
@@ -232,6 +236,11 @@ class OrderComponent extends Component
         $multipleswitersForEdit = Multipleswiter::where('order_id', $this->orderId)->get();
         $this->selectedWriters = $multipleswitersForEdit->pluck('user_id')->toArray();
         
+        // Set word counts for each selected writer
+        foreach ($multipleswitersForEdit as $writerAssignment) {
+            $this->writerWordCounts[$writerAssignment->user_id] = $writerAssignment->word_count ?? 0;
+        }
+        
         $this->orderCode = $order->order_id;
 
         $this->from_date = $order->writer_fd;
@@ -255,12 +264,36 @@ class OrderComponent extends Component
         $this->upto_date = '';
         $this->upto_date_time = '';
         $this->selectedWriters = [];
+        $this->resetErrorBag();
     }
     
     // Livewire method to update the order
     public function updateOrder()
     {
+        // Build dynamic rules for word counts
+        $wordCountRules = [];
+        $wordCountMessages = [];
+
+        foreach ($this->selectedWriters as $userId) {
+            $wordCountRules["writerWordCounts.$userId"] = 'required|numeric|min:1';
+            $wordCountMessages["writerWordCounts.$userId.required"] = "Word count is required for selected writer.";
+            $wordCountMessages["writerWordCounts.$userId.min"] = "Word count must be at least 1 for selected writer.";
+        }
+
+        $this->validate($wordCountRules, $wordCountMessages);
         $order = Order::findOrFail($this->orderId);
+
+        // Check total assigned writer word count does not exceed order total
+        $totalWriterWords = collect($this->selectedWriters)
+            ->sum(fn($userId) => (int) ($this->writerWordCounts[$userId] ?? 0));
+
+        $maxAllowedWords = (int) $order->pages; // total word count allowed
+
+        if ($totalWriterWords > $maxAllowedWords) {
+            $this->addError('writerWordCounts', "Total assigned words ($totalWriterWords) exceed the allowed word count of $maxAllowedWords.");
+            return;
+        }
+
         // dd([
         //     'order' => $order,
         //     'orderId' => $this->orderId,
@@ -339,6 +372,7 @@ class OrderComponent extends Component
                 $writer = new multipleswiter;
                 $writer->order_id = $this->orderId;
                 $writer->user_id = $subwriterId;
+                $writer->word_count = $this->writerWordCounts[$subwriterId] ?? 0;
                 $writer->save();
             }
         }

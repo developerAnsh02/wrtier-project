@@ -37,6 +37,9 @@ class TeamLeader extends Component
     public $filterFromDateApply;
     public $filterToDateApply;
     
+    // for word count of each writer
+    public $writerWordCounts = []; // key: user_id, value: word_count
+
     public function mount()
     {
         // Fetch subwriters associated with the authenticated user
@@ -68,7 +71,13 @@ class TeamLeader extends Component
 
     public function render()
     {
-        $ordersQuery = Order::where('wid', auth()->user()->id)->orderBy('order_id', 'desc')
+        $ordersQuery = Order::with([
+            'writer:id,name', 
+            'subwriter:id,name', 
+            'mulsubwriter' => function ($query) {
+                $query->with('user:id,name'); 
+            }
+        ])->where('wid', auth()->user()->id)->orderBy('order_id', 'desc')
         ->select([
             'id', 'order_id', 'is_fail', 'resit', 'services', 'writer_fd', 'writer_ud', 'writer_fd_h', 'writer_ud_h', 
             'title', 'chapter', 'tech', 'writer_status', 'pages', 'wid', 'swid',
@@ -150,6 +159,13 @@ class TeamLeader extends Component
         $this->status = $order->writer_status;
         $this->mulsubwriter = $order->mulsubwriter->pluck('user_id')->toArray();
         $this->orderCode = $order->order_id;
+
+        $this->writerWordCounts = [];
+
+        foreach ($order->mulsubwriter as $writer) {
+            $this->writerWordCounts[$writer->user_id] = $writer->word_count;
+        }
+        
         $this->isEditModalOpen = true;
     }
 
@@ -163,7 +179,33 @@ class TeamLeader extends Component
             'mulsubwriter' => 'required|array',
         ], $customMessages);
 
+        // Build dynamic rules for selected writer word counts
+        $wordCountRules = [];
+        $wordCountMessages = [];
+
+        foreach ($this->mulsubwriter as $userId) {
+            $wordCountRules["writerWordCounts.$userId"] = 'required|numeric|min:1';
+            $wordCountMessages["writerWordCounts.$userId.required"] = "Word count is required for selected writer.";
+            $wordCountMessages["writerWordCounts.$userId.min"] = "Word count must be at least 1 for selected writer.";
+        }
+
+        // Validate word counts dynamically
+        $this->validate($wordCountRules, $wordCountMessages);
+        
         $order = Order::findOrFail($this->orderId);
+
+        // Calculate total assigned writer word count
+        $totalWriterWords = collect($this->mulsubwriter)
+            ->sum(fn($userId) => (int) ($this->writerWordCounts[$userId] ?? 0));
+
+        // Validate against total words from `pages` field
+        $maxAllowedWords = (int) $order->pages; // pages field is total word count
+
+        if ($totalWriterWords > $maxAllowedWords) {
+            $this->addError('writerWordCounts', "Total assigned words ($totalWriterWords) exceed the allowed word count of $maxAllowedWords.");
+            return;
+        }
+        
         $order->writer_status = $this->status;
 
         // Detach existing relations
@@ -171,7 +213,7 @@ class TeamLeader extends Component
 
         // Attach new relations
         foreach ($this->mulsubwriter as $userId) {
-            $order->mulsubwriter()->create(['user_id' => $userId]);
+            $order->mulsubwriter()->create(['user_id' => $userId, 'word_count' => $this->writerWordCounts[$userId] ?? 0,]);
         }
 
         $order->save();
@@ -182,6 +224,7 @@ class TeamLeader extends Component
 
     public function closeEditModal()
     {
+        $this->resetErrorBag();
         $this->isEditModalOpen = false;
     }
 

@@ -243,21 +243,33 @@
                                             <div class="label label-table label-danger">Not Assigned</div>
                                         @endif
 
-                                        @if($order->mulsubwriter)
+                                        @if($order->mulsubwriter && $order->mulsubwriter->count())
                                             @foreach($order->mulsubwriter as $writer)
                                                 @if($writer->user &&  $writer->user->name) 
-                                                <div class="label label-table label-info">{{$writer->user->name}}</div> <br>
+                                                    <div class="label label-table label-info mb-1">
+                                                        {{ $writer->user->name }}
+                                                        <br>
+                                                        @if($writer->word_count)
+                                                            - {{ $writer->word_count }} words
+                                                        @endif
+                                                    </div> 
+                                                    <br>
                                                 @endif
                                             @endforeach
 
+                                        {{-- Single Sub Writer --}}
                                         @elseif($order->swid)
-                                                <div class="label label-table label-info">
-                                                    @if($order->subwriter && $order->subwriter->name)
-                                                        {{$order->subwriter->name}}
+                                            <div class="label label-table label-info">
+                                                @if($order->subwriter && $order->subwriter->name)
+                                                    {{ $order->subwriter->name }}
+                                                    <br>
+                                                    @if($order->subwriter->pivot && $order->subwriter->pivot->word_count)
+                                                        - {{ $order->subwriter->pivot->word_count }} words
                                                     @endif
-                                                </div>
+                                                @endif
+                                            </div>
                                         @endif
-									</td>
+                                    </td>
 
                                     <td>
                                         @php
@@ -325,10 +337,31 @@
                                 <button type="button" class="form-control">Select Subwriters</button>
                                 <div class="dropdown-content p-2">
                                     @foreach($subWriters as $subWriter)
-                                    <label><input type="checkbox" name="mulsubwriter[]" value="{{ $subWriter->id }}" wire:model="mulsubwriter"> {{ $subWriter->name }}</label>
+                                        <div class="d-flex align-items-center justify-content-between mb-2">
+                                            <div class="d-flex align-items-center">
+                                                <input type="checkbox"
+                                                    class="form-check-input me-2"
+                                                    id="writerCheckbox{{ $subWriter->id }}"
+                                                    value="{{ $subWriter->id }}"
+                                                    wire:model="mulsubwriter"
+                                                    name="mulsubwriter[]">
+
+                                                <label class="form-check-label mb-0" for="writerCheckbox{{ $subWriter->id }}">
+                                                    {{ $subWriter->name }}
+                                                </label>
+                                            </div>
+
+                                            <div class="ms-2" style="width: 100px;">
+                                                <input type="number"
+                                                    class="form-control form-control-sm"
+                                                    placeholder="Words"
+                                                    wire:model.defer="writerWordCounts.{{ $subWriter->id }}">
+                                            </div>
+                                        </div>
                                     @endforeach
                                 </div>
-                                @error('mulsubwriter') <span class="text-danger">{{ $message }}</span> @enderror
+
+                                @error('mulsubwriter') <span class="text-danger">{{ $message }}</span> @enderror                                
                             </div>
                             <style>
                             .dropdown {
@@ -347,7 +380,7 @@
 
                             .dropdown-content label {
                             display: block;
-                            margin-top: 10px;
+                            /* margin-top: 10px; */
                             }
 
                             .dropdown:hover .dropdown-content {
@@ -383,6 +416,30 @@
                             </script>
 
                             <button type="button" wire:click.prevent="update" class="btn btn-primary">Update</button>
+
+                            {{-- Global Word Count Errors --}}
+                            @if ($errors->any())
+                                @php
+                                    $wordCountErrors = collect($errors->getMessages())->filter(function ($messages, $key) {
+                                        return Str::startsWith($key, 'writerWordCounts.');
+                                    });
+                                @endphp
+
+                                @if ($wordCountErrors->isNotEmpty())
+                                    <div class="alert alert-danger mt-1 p-0">
+                                        <ul class="mb-0">
+                                            @foreach ($wordCountErrors as $messages)
+                                                @foreach ($messages as $message)
+                                                    <li>{{ $message }}</li>
+                                                @endforeach
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                @endif
+                            @endif
+                            @error('writerWordCounts')
+                                <div class="text-danger mt-2">{{ $message }}</div>
+                            @enderror
                         </form>
                     </div>
                 </div>

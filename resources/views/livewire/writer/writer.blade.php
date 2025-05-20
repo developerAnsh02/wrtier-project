@@ -223,7 +223,13 @@
                                         @endif
 									</td>
 
-									<td>{{$order->pages}}</td>
+									<td>
+                                        {{$order->pages}} 
+                                        <br>
+                                        <span class="label label-table label-info">
+                                            {{ $order->word_count ?? 'N/A' }}
+                                        </span>
+                                    </td>
                                     
                                     <td>
                                         @php

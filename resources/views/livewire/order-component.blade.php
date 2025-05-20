@@ -297,7 +297,7 @@
                                     </td>
                                     <td>
                                         @if($order->wid)
-                                            @if($order['writer'] &&  $order['writer']['name'])
+                                            @if($order['writer'] && $order['writer']['name'])
                                                 {{ $order['writer']['name'] }} <br>
                                             @endif
                                         @else
@@ -306,17 +306,27 @@
 
                                         @if($order->mulsubwriter)
                                             @foreach($order->mulsubwriter as $writer)
-                                                @if($writer->user &&  $writer->user->name) 
-                                                <div class="label label-table label-info">{{$writer->user->name}}</div> <br>
+                                                @if($writer->user && $writer->user->name) 
+                                                <div class="label label-table label-info mb-1">
+                                                    {{$writer->user->name}} 
+                                                    <br>
+                                                    @if($writer->word_count)
+                                                        - {{ $writer->word_count }} words
+                                                    @endif
+                                                </div>
+                                                <br>
                                                 @endif
                                             @endforeach
 
                                         @elseif($order->swid)
-                                                <div class="label label-table label-info">
-                                                    @if($order->subwriter && $order->subwriter->name)
-                                                        {{$order->subwriter->name}}
+                                            <div class="label label-table label-info">
+                                                @if($order->subwriter && $order->subwriter->name)
+                                                    {{$order->subwriter->name}}
+                                                    @if($order->subwriter->pivot && $order->subwriter->pivot->word_count)
+                                                        - {{ $order->subwriter->pivot->word_count }} words
                                                     @endif
-                                                </div>
+                                                @endif
+                                            </div>
                                         @endif
                                     </td>
                                     <td>
@@ -419,12 +429,19 @@
                                                     </label>
                                                 </li>
                                             @endif
-                                            @foreach($modalWriter as $writer)                                                
-                                                <li>
-                                                    <label>
-                                                        <input type="checkbox" wire:model="selectedWriters" value="{{ $writer->id }}" class="order-checkbox" data-order-id="{{ $order->order_id }}">
-                                                        {{ $writer->name }}
-                                                    </label>
+                                            @foreach($modalWriter as $writer)
+                                                <li class="d-flex justify-content-between align-items-center px-2">
+                                                    <div class="form-check">
+                                                        <input type="checkbox" wire:model="selectedWriters" value="{{ $writer->id }}" class="form-check-input order-checkbox me-2" id="writerCheckbox{{ $writer->id }}">
+                                                        <label class="form-check-label" for="writerCheckbox{{ $writer->id }}">{{ $writer->name }}</label>
+                                                    </div>
+                                                    <div style="width: 80px;">
+                                                        <input type="number"
+                                                            wire:model.lazy="writerWordCounts.{{ $writer->id }}"
+                                                            class="form-control form-control-sm"
+                                                            placeholder="Words"
+                                                            min="0">
+                                                    </div>
                                                 </li>
                                             @endforeach
                                         </ul>
@@ -484,6 +501,15 @@
                                 </div>
                             </div>
                             <button type="button" wire:click.prevent="updateOrder" class="btn btn-primary">Update</button>                    
+                            @if ($errors->any())
+                                <div class="alert alert-danger mt-3">
+                                    <ul class="mb-0">
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
                         </form>
                     </div>
                 </div>

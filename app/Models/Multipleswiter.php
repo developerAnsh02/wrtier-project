@@ -9,7 +9,7 @@ class Multipleswiter extends Model
 {
     use HasFactory;
     protected $table = 'multiple_wrtier';
-    protected $fillable = ['user_id', 'order_id'];
+    protected $fillable = ['user_id', 'order_id', 'word_count'];
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');

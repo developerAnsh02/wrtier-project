@@ -63,7 +63,10 @@ class Writer extends Component
     {
         $multipleWriters = Multipleswiter::where('user_id', auth()->user()->id)->get();            
         $orderIds = $multipleWriters->pluck('order_id')->toArray();            
-         
+        
+        // Create a map: order_id => word_count
+        $writerWordCounts = $multipleWriters->pluck('word_count', 'order_id');
+        
         $ordersQuery = Order::whereIn('id', $orderIds)->orderBy('order_id', 'desc')
         ->select([
             'id', 'order_id', 'is_fail', 'resit', 'services', 'writer_fd', 'writer_ud', 'writer_fd_h', 'writer_ud_h', 
@@ -125,7 +128,15 @@ class Writer extends Component
             $ordersQuery->whereBetween('writer_ud', [$startDate, $endDate]);
         }
 
-        $data['orders'] = $ordersQuery->paginate(10);
+        // $data['orders'] = $ordersQuery->paginate(10);
+        $orders = $ordersQuery->paginate(10);
+
+        $orders->getCollection()->transform(function ($order) use ($writerWordCounts) {
+            $order->word_count = $writerWordCounts[$order->id] ?? null;
+            return $order;
+        });
+
+        $data['orders'] = $orders;
 
         return view('livewire.writer.writer', compact('data'));
     }
