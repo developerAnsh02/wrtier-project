@@ -275,9 +275,9 @@ class OrderComponent extends Component
         $wordCountMessages = [];
 
         foreach ($this->selectedWriters as $userId) {
-            $wordCountRules["writerWordCounts.$userId"] = 'required|numeric|min:1';
+            $wordCountRules["writerWordCounts.$userId"] = 'required|numeric|min:0';
             $wordCountMessages["writerWordCounts.$userId.required"] = "Word count is required for selected writer.";
-            $wordCountMessages["writerWordCounts.$userId.min"] = "Word count must be at least 1 for selected writer.";
+            $wordCountMessages["writerWordCounts.$userId.min"] = "Word count must be at least 0 for selected writer.";
         }
 
         $this->validate($wordCountRules, $wordCountMessages);
