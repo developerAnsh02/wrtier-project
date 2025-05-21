@@ -21,6 +21,9 @@ class AdminTaskReport extends Component
 
     public function mount()
     {
+        if (!in_array(Auth::user()->role_id, [8])) {
+            abort(403, 'Unauthorized access');
+        }
         $this->selectedDate = now()->toDateString();
         $this->loadTLs();
         $this->loadReports();
@@ -97,7 +100,7 @@ class AdminTaskReport extends Component
             $newVersion->parent_id = $this->currentReport->id;
             $newVersion->is_draft = true;
             $newVersion->edit_request_status = 'approved';
-            $newVersion->edit_reason = '';
+            $newVersion->edit_reason = NULL;
             $newVersion->submitted_at = NULL;
             $newVersion->save();
 
@@ -138,10 +141,6 @@ class AdminTaskReport extends Component
 
     public function render()
     {
-        if (Auth::user()->role_id != 8) {
-            abort(403, 'Unauthorized access');
-        }
-
         return view('livewire.admin-task-report');
     }
 }

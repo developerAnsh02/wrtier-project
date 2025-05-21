@@ -318,7 +318,7 @@
                         <textarea wire:model="editRequestReason" 
                                 class="form-control" 
                                 rows="4"
-                                placeholder="Please explain why you need to edit this report (10-55 characters)"
+                                placeholder="Please explain why you need to edit this report (5-55 characters)"
                                 required></textarea>
                         @error('editRequestReason')
                             <div class="text-danger small mt-1">{{ $message }}</div>

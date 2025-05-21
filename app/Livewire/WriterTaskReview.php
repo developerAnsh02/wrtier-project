@@ -11,7 +11,7 @@ class WriterTaskReview extends Component
 {
     public $reports = [];
     public $selectedDate;
-    public $showApprovalModal = false;
+    // public $showApprovalModal = false;
     public $showViewModal = false; 
     public $currentReport = null;
     public $writers = [];
@@ -20,6 +20,9 @@ class WriterTaskReview extends Component
 
     public function mount()
     {
+        if (!in_array(Auth::user()->role_id, [6])) {
+            abort(403, 'Unauthorized access');
+        }
         $this->selectedDate = now()->toDateString();
         $this->loadWriters();
         $this->loadReports();
@@ -38,6 +41,7 @@ class WriterTaskReview extends Component
         $this->reports = TaskReport::with(['user:id,name'])
             ->whereIn('user_id', $this->writers->pluck('id'))
             ->whereDate('task_date', $this->selectedDate)
+            ->where('is_hidden_from_writer', false)
             ->orderByDesc('created_at')
             ->get()
             ->each(function ($report) {
@@ -50,13 +54,13 @@ class WriterTaskReview extends Component
         $this->loadReports();
     }
 
-    public function show($reportId)
-    {
-            $this->currentReport = TaskReport::with('user:id,name')
-            ->findOrFail($reportId)
-            ->append('tasks_array');
-        $this->showApprovalModal = true;
-    }
+    // public function show($reportId)
+    // {
+    //         $this->currentReport = TaskReport::with('user:id,name')
+    //         ->findOrFail($reportId)
+    //         ->append('tasks_array');
+    //     $this->showApprovalModal = true;
+    // }
 
     // New method for view details
     public function showDetails($reportId)
@@ -67,68 +71,65 @@ class WriterTaskReview extends Component
         $this->showViewModal = true;
     }
 
-    public function approveEditRequest()
-    {
-        \DB::transaction(function () {
-            $this->validate([
-                'currentReport.edit_reason' => 'sometimes|max:255'
-            ]);
+    // public function approveEditRequest()
+    // {
+    //     \DB::transaction(function () {
+    //         $this->validate([
+    //             'currentReport.edit_reason' => 'sometimes|max:255'
+    //         ]);
 
-            $newVersion = $this->currentReport->replicate();
-            $newVersion->version = $this->currentReport->version + 1;
-            $newVersion->parent_id = $this->currentReport->id;
-            $newVersion->is_draft = true;
-            $newVersion->edit_request_status = 'approved';
-            $newVersion->edit_reason = '';
-            $newVersion->submitted_at = NULL;
-            $newVersion->save();
+    //         $newVersion = $this->currentReport->replicate();
+    //         $newVersion->version = $this->currentReport->version + 1;
+    //         $newVersion->parent_id = $this->currentReport->id;
+    //         $newVersion->is_draft = true;
+    //         $newVersion->edit_request_status = 'approved';
+    //         $newVersion->edit_reason = '';
+    //         $newVersion->submitted_at = NULL;
+    //         $newVersion->save();
 
-            $this->currentReport->update([
-                'edit_request_status' => 'archived',
-                'is_draft' => false,
-                'is_hidden_from_writer' => true
-            ]);
-        });
+    //         $this->currentReport->update([
+    //             'edit_request_status' => 'archived',
+    //             'is_draft' => false,
+    //             'is_hidden_from_writer' => true
+    //         ]);
+    //     });
 
-        $this->resetModal();
-        $this->dispatch('notify', 
-            type: 'success',
-            message: 'Edit request approved! Writer can now make changes.'
-        );
-        $this->dispatch('refreshReports');
-    }
+    //     $this->resetModal();
+    //     $this->dispatch('notify', 
+    //         type: 'success',
+    //         message: 'Edit request approved! Writer can now make changes.'
+    //     );
+    //     $this->dispatch('refreshReports');
+    // }
 
-    public function rejectEditRequest()
-    {
-        $this->validate([
-            'currentReport.id' => 'required|exists:task_reports,id'
-        ]);
+    // public function rejectEditRequest()
+    // {
+    //     $this->validate([
+    //         'currentReport.id' => 'required|exists:task_reports,id'
+    //     ]);
 
-        $this->currentReport->update([
-            'edit_request_status' => 'rejected',
-            'rejected_at' => now()
-        ]);
+    //     $this->currentReport->update([
+    //         'edit_request_status' => 'rejected',
+    //         'rejected_at' => now()
+    //     ]);
 
-        $this->resetModal();
-        $this->dispatch('notify', 
-            type: 'success',
-            message: 'Edit request rejected.'
-        );
-        $this->dispatch('refreshReports');
-    }
+    //     $this->resetModal();
+    //     $this->dispatch('notify', 
+    //         type: 'success',
+    //         message: 'Edit request rejected.'
+    //     );
+    //     $this->dispatch('refreshReports');
+    // }
 
     public function resetModal()
     {
-        $this->showApprovalModal = false;
+        // $this->showApprovalModal = false;
         $this->showViewModal = false;
         $this->currentReport = null;
     }
 
     public function render()
     {
-        if (Auth::user()->role_id != 6) {
-            abort(403, 'Unauthorized access');
-        }
         return view('livewire.writer-task-review');
     }
 }

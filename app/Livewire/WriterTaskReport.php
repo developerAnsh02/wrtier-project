@@ -6,6 +6,7 @@ use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 use App\Models\TaskReport as TaskReportModel;
 use App\Models\Order;
+use App\Models\User;
 use App\Models\Multipleswiter;
 use Illuminate\Support\Carbon;
 
@@ -31,11 +32,21 @@ class WriterTaskReport extends Component
     public $editRequestReason = '';
 
     public $noResultsFound = false;    
+    public $userId;    
 
     public function mount()
     {
-        if (Auth::user()->role_id != 7) {
+        if (!in_array(Auth::user()->role_id, [6, 7])) {
             abort(403, 'Unauthorized access');
+        }
+        $this->userId = Auth::id();
+        if (Auth::user()->role_id === 6) {
+            // Try to find the writer account for this TL (must have role_id == 7)
+            $writer = User::where('tl_id', $this->userId)
+                    ->where('self_writer', $this->userId)
+                    ->where('role_id', 7)
+                    ->first();
+            $this->userId = $writer->id;
         }
         $this->task_date = now()->toDateString();
         $this->loadReports();
@@ -44,7 +55,7 @@ class WriterTaskReport extends Component
     public function loadReports()
     {
         // First try to get the latest draft copy (child report)
-        $report = TaskReportModel::where('user_id', Auth::id())
+        $report = TaskReportModel::where('user_id', $this->userId)
             ->where('task_date', $this->task_date)
             ->where('is_hidden_from_writer', false)
             ->orderBy('version', 'desc')
@@ -99,7 +110,7 @@ class WriterTaskReport extends Component
         }
         
         // Get order IDs from Multipleswiter for current user
-        $multipleWriters = Multipleswiter::where('user_id', auth()->id())->get();
+        $multipleWriters = Multipleswiter::where('user_id', $this->userId)->get();
         $orderIds = $multipleWriters->pluck('order_id')->toArray();
 
         // Search only within the user's assigned orders
@@ -153,7 +164,7 @@ class WriterTaskReport extends Component
 
     public function confirmDelete()
     {
-        $report = TaskReportModel::where('user_id', Auth::id())
+        $report = TaskReportModel::where('user_id', $this->userId)
             ->where('task_date', $this->task_date)
             ->orderBy('version', 'desc')
             ->first();
@@ -198,7 +209,7 @@ class WriterTaskReport extends Component
         ]);
 
         // Get order IDs assigned to current user from Multipleswiter
-        $multipleWriters = Multipleswiter::where('user_id', auth()->id())->pluck('order_id')->toArray();
+        $multipleWriters = Multipleswiter::where('user_id', $this->userId)->pluck('order_id')->toArray();
 
         // Check if the entered order_code exists in user's assigned orders
         $order = Order::whereIn('id', $multipleWriters)
@@ -226,7 +237,7 @@ class WriterTaskReport extends Component
             }
 
             $report = new TaskReportModel([
-                'user_id' => Auth::id(),
+                'user_id' => $this->userId,
                 'task_date' => $this->task_date,
                 'is_draft' => true,
                 'version' => $version,
@@ -270,7 +281,7 @@ class WriterTaskReport extends Component
             }]
         ]);
         
-        $report = TaskReportModel::where('user_id', Auth::id())
+        $report = TaskReportModel::where('user_id', $this->userId)
             ->where('task_date', $this->task_date)
             ->orderBy('version', 'desc')
             ->first();
@@ -296,7 +307,7 @@ class WriterTaskReport extends Component
                 }
             }]
         ]);
-        $report = TaskReportModel::where('user_id', Auth::id())
+        $report = TaskReportModel::where('user_id', $this->userId)
             ->where('task_date', $this->task_date)
             ->orderBy('version', 'desc')
             ->first();
@@ -312,10 +323,10 @@ class WriterTaskReport extends Component
     public function submitEditRequest()
     {
         $this->validate([
-            'editRequestReason' => 'required|min:10|max:55'
+            'editRequestReason' => 'required|min:5|max:55'
         ]);
 
-        $report = TaskReportModel::where('user_id', Auth::id())
+        $report = TaskReportModel::where('user_id', $this->userId)
             ->where('task_date', $this->task_date)
             ->orderBy('version', 'desc')
             ->first();
@@ -353,9 +364,6 @@ class WriterTaskReport extends Component
 
     public function render()
     {
-        if (Auth::user()->role_id != 7) {
-            abort(403, 'Unauthorized access');
-        }
         return view('livewire.writer-task-report');
     }
 }
