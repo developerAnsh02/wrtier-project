@@ -3,17 +3,17 @@
         <div class="col-md-5 align-self-center">
             <h4 class="text-themecolor">Writer Task Review</h4>
         </div>
-        <div class="col-md-7 align-self-center text-end">
-            <div class="d-flex justify-content-end align-items-center">
-                <input type="date" wire:model.live="selectedDate" class="form-control w-auto me-3">
-            </div>
+        <div class="col-md-7 text-end">
+            <input type="date" wire:model.live="selectedDate" class="form-control w-auto d-inline-block">
         </div>
     </div>
 
     <div class="row">
         <div class="col-12">
             @if($reports->isEmpty())
-                <div class="alert alert-info">No tasks found for {{ \Carbon\Carbon::parse($selectedDate)->format('M d, Y') }}</div>
+                <div class="alert alert-info">
+                    No tasks found for {{ \Carbon\Carbon::parse($selectedDate)->format('M d, Y') }}
+                </div>
             @else
                 @foreach($reports->groupBy('user.name') as $writerName => $writerReports)
                     <div class="card mb-4">
@@ -25,49 +25,49 @@
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
-                                <table class="table table-striped">
-                                    <thead>
+                                <table class="table table-bordered mb-0">
+                                    <thead class="table-light">
                                         <tr>
-                                            <th>Order Codes</th>
+                                            <th>#</th>
+                                            <th>Order Code</th>
+                                            <th>Nature</th>
+                                            <th>Word Count</th>
+                                            <th>Comments</th>
+                                            <th>Time</th>
                                             <th>Total Words</th>
                                             <th>Status</th>
                                             <th>Submitted At</th>
-                                            <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        @php $counter = 1; @endphp
                                         @foreach($writerReports as $report)
-                                            <tr>
-                                                <td>
-                                                    @foreach(json_decode($report->tasks) as $task)
-                                                        {{ $task->order_code }}<br>
-                                                    @endforeach
-                                                </td>
-                                                <td>{{ number_format($report->total_words) }}</td>
-                                                <td>
-                                                    @if($report->edit_request_status === 'pending')
-                                                        <span class="badge bg-warning">Pending Approval</span>
-                                                    @elseif($report->edit_request_status === 'approved')
-                                                        <span class="badge bg-success">Approved</span>
-                                                    @elseif($report->edit_request_status === 'rejected')
-                                                        <span class="badge bg-danger">Rejected</span>
-                                                    @elseif($report->edit_request_status === 'archived')
-                                                        <span class="badge bg-danger">Archived</span>
-                                                    @else
-                                                        @if($report->submitted_at)
-                                                            <span class="badge bg-primary">Submitted</span>
-                                                        @else
-                                                            <span class="badge bg-warning">Not submitted</span>
-                                                        @endif
-                                                    @endif
-                                                </td>
-                                                <td>{{ $report->submitted_at ? \Carbon\Carbon::parse($report->submitted_at)->format('M d, h:i A') : 'N/A' }}</td>
-                                                <td>
-                                                    <button wire:click="showDetails({{ $report->id }})" class="btn btn-sm btn-info">
-                                                            View
-                                                    </button>
-                                                </td>
-                                            </tr>
+                                            @foreach(json_decode($report->tasks) as $task)
+                                                <tr>
+                                                    <td>{{ $counter++ }}</td>
+                                                    <td>{{ $task->order_code ?? '-' }}</td>
+                                                    <td>{{ $task->nature ?? '-' }}</td>
+                                                    <td>{{ number_format($task->word_count ?? 0) }}</td>
+                                                    <td>{{ $task->comments ?? '-' }}</td>
+                                                    <td>{{ isset($task->timestamp) ? \Carbon\Carbon::parse($task->timestamp)->format('h:i A') : '-' }}</td>
+                                                    <td>{{ number_format($report->total_words) }}</td>
+                                                    <td>
+                                                        @php $status = $report->edit_request_status; @endphp
+                                                        <span class="badge
+                                                            @if($report->submitted_at) bg-primary
+                                                            @else bg-warning
+                                                            @endif
+                                                        ">
+                                                            @if($report->submitted_at)
+                                                                Submitted
+                                                            @else
+                                                                Not Submitted
+                                                            @endif
+                                                        </span>
+                                                    </td>
+                                                    <td>{{ $report->submitted_at ? \Carbon\Carbon::parse($report->submitted_at)->format('M d, h:i A') : 'N/A' }}</td>
+                                                </tr>
+                                            @endforeach
                                         @endforeach
                                     </tbody>
                                 </table>
@@ -78,95 +78,4 @@
             @endif
         </div>
     </div>
-
-    <!-- View Details Modal -->
-    @if($showViewModal)
-    <div class="modal fade show d-block" style="background: rgba(0,0,0,0.5);" tabindex="-1" role="dialog" aria-modal="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header bg-info text-white">
-                    <h5 class="modal-title">Task Report Details</h5>
-                    <button type="button" class="btn-close btn-close-white" wire:click="resetModal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    @if($currentReport)
-                    <div class="row mb-4">
-                        <div class="col-md-6">
-                            <h6><i class="fas fa-user me-2"></i>Writer Information</h6>
-                            <p><strong>Name:</strong> {{ $currentReport->user->name ?? 'N/A' }}</p>
-                            <p><strong>Task Date:</strong> {{ \Carbon\Carbon::parse($currentReport->task_date)->format('M d, Y') }}</p>
-                            <p><strong>Status:</strong> 
-                                @if($currentReport->edit_request_status === 'pending')
-                                    <span class="badge bg-warning">Pending Approval</span>
-                                @elseif($currentReport->edit_request_status === 'approved')
-                                    <span class="badge bg-success">Approved</span>
-                                @elseif($currentReport->edit_request_status === 'rejected')
-                                    <span class="badge bg-danger">Rejected</span>
-                                @else
-                                    @if($currentReport->submitted_at)
-                                        <span class="badge bg-primary">Submitted</span>
-                                    @else
-                                        <span class="badge bg-warning">Not submitted</span>
-                                    @endif
-                                @endif
-                            </p>
-                        </div>
-                        <div class="col-md-6">
-                            <h6><i class="fas fa-chart-bar me-2"></i>Summary</h6>
-                            <p><strong>Total Words:</strong> {{ number_format($currentReport->total_words) }}</p>
-                            <p><strong>Number of Tasks:</strong> {{ count(json_decode($currentReport->tasks)) }}</p>
-                            <p><strong>Submitted At:</strong> 
-                                @if($currentReport->submitted_at)
-                                    {{ \Carbon\Carbon::parse($currentReport->submitted_at)->format('M d, Y h:i A') }}
-                                @else
-                                    <span class="badge bg-warning">N/A</span>
-                                @endif
-                            </p>
-                            
-                        </div>
-                    </div>
-                    
-                    <div class="mt-3">
-                        <h6><i class="fas fa-tasks me-2"></i>Task Details</h6>
-                        <div class="table-responsive">
-                            <table class="table table-sm table-striped">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Order Code</th>
-                                        <th>Nature</th>
-                                        <th>Word Count</th>
-                                        <th>Comments</th>
-                                        <th>Time</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach(json_decode($currentReport->tasks) as $task)
-                                    <tr>
-                                        <td>{{ $task->order_code }}</td>
-                                        <td>{{ $task->nature }}</td>
-                                        <td>{{ number_format($task->word_count) }}</td>
-                                        <td>{{ $task->comments }}</td>
-                                        <td>{{ \Carbon\Carbon::parse($task->timestamp)->format('h:i A') }}</td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    @else
-                        <div class="alert alert-danger">Report data not loaded!</div>
-                    @endif
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" wire:click="resetModal">
-                        <i class="fas fa-times me-1"></i> Close
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-    @endif
-
-    
-
 </div>
