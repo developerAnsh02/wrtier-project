@@ -42,6 +42,7 @@
                                     <option value="Attached to Email (Complete file) ">Attached to Email (Complete file) </option>
                                     <option value="Delivered" >Delivered</option>
                                     <option value="Hold">Hold</option>
+                                    <option value="writer query">Writer Query</option>
                                 </select>
                                 <div class="fv-plugins-message-container invalid-feedback"></div>
                             </div>
@@ -219,7 +220,7 @@
                                         @elseif($order->writer_status == 'Draft Delivered' ||  $order->writer_status == 'Feedback Delivered' ||$order->writer_status == 'Delivered'  )
                                             <div class="label label-table label-success" >{{ $order->writer_status }}</div>
                                         @else
-                                            {{ $order->writer_status }}
+                                            <div class="label label-table label-primary" >{{ $order->writer_status }}</div>
                                         @endif
 									</td>
 

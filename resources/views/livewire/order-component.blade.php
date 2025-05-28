@@ -14,7 +14,7 @@
     </div>
     <div class="row">
         <div class="col-12">
-            <div class="card card-xxl-stretch mb-5 mb-xl-8">
+            <div class="card card-xxl-stretch mb-3 mb-xl-8">
                 <div class="card-header">
                     <h3 class="card-title align-items-start flex-column">
                         <span class="card-label fs-5 mb-1">Order Statistics</span>
@@ -56,7 +56,7 @@
                 document.getElementById("alert").style.display = "none";
             }, 5000); // 5000ms = 5 seconds
         </script>
-            <div class="card card-xxl-stretch mb-5 mb-xl-8">
+            <div class="card card-xxl-stretch mb-3 mt-0 mb-xl-8">
                 <div class="card-header">
                     <h3 class="card-title align-items-start flex-column">
                         <span class="card-label fs-5 mb-1">Filter</span>
@@ -116,6 +116,7 @@
                                     <option value="Attached to Email (Complete file)">Attached to Email (Complete file)</option>
                                     <option value="Delivered">Delivered</option>
                                     <option value="Hold">Hold</option>
+                                    <option value="writer query">Writer Query</option>
                                 </select>
                             </div>
 
@@ -179,7 +180,16 @@
                                         $(this).val('');
                                     }); 
                                 </script>
-                            </div>                        
+                            </div>
+                            
+                            <div class="col-md-3 fv-row">
+                                <select wire:model="filterPaperType" class="form-select form-select-solid form-select-lg">
+                                    <option value="">Select Paper Type</option>
+                                    @foreach ($data['paperTypes'] as $paper)
+                                        <option value="{{ $paper->paper_type }}">{{ $paper->paper_type }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                         </div>
                         <script>
                             window.resetDateRangePickers = function () {
@@ -276,6 +286,10 @@
 										@if( $order->tech == '1' )
 										<div class="label label-table label-success">Technical Work</div>
 										@endif
+										
+                                        @if( !empty($order->typeofpaper) )
+										<div class="label label-table label-info">{{ $order->typeofpaper}}</div>
+										@endif
                                     </td>
                                     <td>
                                         @if($order->writer_status == '' || $order->writer_status == 'Not Assigned' || $order->writer_status == 'Hold')
@@ -289,7 +303,7 @@
                                         @elseif($order->writer_status == 'Draft Delivered' ||  $order->writer_status == 'Feedback Delivered' ||$order->writer_status == 'Delivered'  )
                                             <div class="label label-table label-success" >{{ $order->writer_status }}</div>
                                         @else
-                                            {{ $order->writer_status }}
+                                            <div class="label label-table label-primary" >{{ $order->writer_status }}</div>
                                         @endif
                                     </td>
                                     <td>
@@ -332,21 +346,25 @@
                                     <td>
                                         @if($order->writer_deadline && $order->writer_deadline != '0000-00-00')
                                             {{ \Carbon\Carbon::parse($order->writer_deadline)->format('jS M Y') }}
+                                            @if($order->writer_deadline_time && $order->writer_deadline_time != '00:00:00')
+                                                <br>
+                                                ( {{ \Carbon\Carbon::parse($order->writer_deadline_time)->format('g:i A') }} )
+                                            @endif
                                         @else
                                             N/A
                                         @endif
                                         @if($order->draftrequired == 'Y')
-											<br>
-											<div class="label label-table label-info">
-												( 
-													@if($order->draft_date && $order->draft_date != '0000-00-00')
-														{{ \Carbon\Carbon::parse($order->draft_date)->format('d M Y') }}
-													@endif
-													@if($order->draft_time && $order->draft_time != '00:00:00')
-														{{ \Carbon\Carbon::parse($order->draft_time)->format('g:i A') }}
-													@endif
-												)
-                                            </div>
+                                            @if($order->draft_date && $order->draft_date != '0000-00-00')
+                                                <br>
+                                                <div class="label label-table label-info">
+                                                ( 
+                                                    {{ \Carbon\Carbon::parse($order->draft_date)->format('d M Y') }}
+                                                    @if($order->draft_time && $order->draft_time != '00:00:00')
+                                                        {{ \Carbon\Carbon::parse($order->draft_time)->format('g:i A') }}
+                                                    @endif
+                                                )
+                                                </div>
+                                            @endif
 										@endif
                                     </td>
                                     <td>
@@ -460,7 +478,7 @@
                                 }
                             </style>
                     
-                            <div class="form-group mt-3">
+                            <div class="form-group mt-3 mb-0">
                                 <label for="status">Status</label>
                                 <select id="status" wire:model="status" class="form-control">
                                     <option value="">Select Status</option>
@@ -471,7 +489,18 @@
                                     <option value="Complete file Ready">Complete file Ready</option>
                                     <option value="Feedback">Feedback</option>
                                     <option value="Delivered">Delivered</option>
-                                    <option value="Hold">Hold</option>                                    
+                                    <option value="Hold">Hold</option>  
+                                    <option value="writer query">Writer Query</option>                                                                      
+                                </select>
+                            </div>
+
+                            <div class="form-group mt-3">
+                                <label for="type_of_paper">Type of Paper</label>
+                                <select id="type_of_paper" wire:model="type_of_paper" class="form-control">
+                                    <option value="">Select Type of Paper</option>
+                                    @foreach ($paperTypes as $paper)
+                                        <option value="{{ $paper->paper_type }}">{{ $paper->paper_type }}</option>
+                                    @endforeach
                                 </select>
                             </div>
 

@@ -187,7 +187,7 @@ class QcSheet extends Component
         ->select([
             'id', 'order_id', 'qc_admin', 'wid', 'writer_deadline', 'qc_date',
             'writer_status', 'qc_standard', 'ai_score', 'qc_comment', 'qc_checked',
-            'plag_score', 'draft_date'
+            'plag_score', 'draft_date', 'writer_deadline_time'
         ]);
 
         // Apply filters

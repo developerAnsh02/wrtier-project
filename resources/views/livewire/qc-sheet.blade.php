@@ -169,7 +169,13 @@
                                     </td>
                                     <td style="white-space: nowrap;">                                                                               
                                         @if(!empty($order->writer_deadline) && $order->writer_deadline !== '0000-00-00')
-                                            <div>{{ \Carbon\Carbon::parse($order->writer_deadline)->format('jS M Y') }}</div>                                            
+                                            <div>
+                                                {{ \Carbon\Carbon::parse($order->writer_deadline)->format('jS M Y') }}
+                                                @if($order->writer_deadline_time && $order->writer_deadline_time != '00:00:00')
+                                                    <br>
+                                                    ( {{ \Carbon\Carbon::parse($order->writer_deadline_time)->format('g:i A') }} )
+                                                @endif
+                                            </div>                                            
                                         @endif                                       
                                         @if(!empty($order->qc_date) && $order->qc_date !== '0000-00-00')                                            
                                             <div class="label label-table label-danger">Qc - {{ \Carbon\Carbon::parse($order->qc_date)->format('jS M Y') }}</div>

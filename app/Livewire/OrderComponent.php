@@ -6,8 +6,9 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\User;
 use App\Models\Order;
-use App\Models\multipleswiter;
+use App\Models\Multipleswiter;
 use App\Models\Comment;
+use App\Models\Paper;
 use Illuminate\Support\Facades\Auth;
 
 class OrderComponent extends Component
@@ -36,6 +37,9 @@ class OrderComponent extends Component
     public $from_date_time;
     public $upto_date;
     public $upto_date_time;
+
+    public $paperTypes = [];
+    public $type_of_paper;
     
     // filter
     public $search;
@@ -52,6 +56,7 @@ class OrderComponent extends Component
     public $filterToDateRange;
     public $filterFromDateRangeApply;
     public $filterToDateRangeApply;
+    public $filterPaperType;
     
     // for word count of each writer
     public $writerWordCounts = []; // key: user_id, value: word_count
@@ -94,6 +99,7 @@ class OrderComponent extends Component
         $this->filterToDateRangeApply = '';
         $this->filterFromDateRange = '';
         $this->filterToDateRange = '';
+        $this->filterPaperType = '';
         $this->resetPage();
     }
 
@@ -113,7 +119,7 @@ class OrderComponent extends Component
             'id', 'order_id', 'services', 'typeofpaper', 'pages', 'title',
             'writer_deadline', 'chapter', 'wid', 'swid', 'writer_status',
             'writer_fd', 'writer_ud', 'writer_ud_h', 'writer_fd_h',
-            'resit', 'tech', 'is_fail', 'draftrequired', 'draft_date', 'draft_time'
+            'resit', 'tech', 'is_fail', 'draftrequired', 'draft_date', 'draft_time', 'typeofpaper', 'writer_deadline_time'
         ]);
 
         
@@ -184,7 +190,7 @@ class OrderComponent extends Component
         }
 
         if ($this->filterSubWriter) {                          
-            $multipleWriters = multipleswiter::where('user_id', $this->filterSubWriter)->get();            
+            $multipleWriters = Multipleswiter::where('user_id', $this->filterSubWriter)->get();            
             $orderIds = $multipleWriters->pluck('order_id')->toArray();            
             $ordersQuery->whereIn('id', $orderIds);            
         }
@@ -203,6 +209,10 @@ class OrderComponent extends Component
             $ordersQuery->whereBetween('writer_ud', [$startDate, $endDate]);
         }
 
+        if ($this->filterPaperType) {
+            $ordersQuery->where('typeofpaper', $this->filterPaperType);
+        }
+
         $WordCount = $ordersQuery->get();
 
         $data['order'] = $ordersQuery->paginate(10);
@@ -218,7 +228,8 @@ class OrderComponent extends Component
         $data['totalOrders'] = $totalOrders;
         // dd($totalWordCount, $totalOrders);
         $data['tl'] = User::where('role_id', 6)->where('flag', 0)->where('admin_id' , auth()->user()->id)->orderBy('created_at', 'desc')->get(['id', 'name']);
-        
+        $data['paperTypes'] = Paper::orderBy('paper_type')->get();
+
         return view('livewire.order-component', compact('data'));
     }
 
@@ -247,6 +258,11 @@ class OrderComponent extends Component
         $this->upto_date = $order->writer_ud;
         $this->from_date_time = $order->writer_fd_h;
         $this->upto_date_time = $order->writer_ud_h;
+
+        //typeofpaper
+        $this->type_of_paper = $order->typeofpaper;
+        $this->paperTypes = Paper::orderBy('paper_type')->get();
+
         $this->isEditModalOpen = true;
     }
     public function closeEditModal()
@@ -264,6 +280,8 @@ class OrderComponent extends Component
         $this->upto_date = '';
         $this->upto_date_time = '';
         $this->selectedWriters = [];
+        $this->type_of_paper = '';
+        $this->paperTypes = [];
         $this->resetErrorBag();
     }
     
@@ -333,7 +351,7 @@ class OrderComponent extends Component
             $order->wid = $this->tl_id_edit;
             if (empty($this->selectedWriters)) {
                 // Delete existing entries with the same order_id
-                multipleswiter::where('order_id', $this->orderId)->delete();
+                Multipleswiter::where('order_id', $this->orderId)->delete();
             }
             $updateNeeded = true;
         }
@@ -357,6 +375,10 @@ class OrderComponent extends Component
             $order->writer_ud_h = $this->upto_date_time;
             $updateNeeded = true;
         }
+        if ($this->type_of_paper != '') {
+            $order->typeofpaper = $this->type_of_paper;
+            $updateNeeded = true;
+        }
 
         if ($updateNeeded) {
             $order->save();
@@ -365,11 +387,11 @@ class OrderComponent extends Component
 
         if (!empty($this->selectedWriters)) {
             // Delete existing entries with the same order_id
-            multipleswiter::where('order_id', $this->orderId)->delete();
+            Multipleswiter::where('order_id', $this->orderId)->delete();
             
             // Insert new entries
             foreach ($this->selectedWriters as $subwriterId) {
-                $writer = new multipleswiter;
+                $writer = new Multipleswiter;
                 $writer->order_id = $this->orderId;
                 $writer->user_id = $subwriterId;
                 $writer->word_count = $this->writerWordCounts[$subwriterId] ?? 0;
