@@ -187,7 +187,7 @@ class QcSheet extends Component
         ->select([
             'id', 'order_id', 'qc_admin', 'wid', 'writer_deadline', 'qc_date',
             'writer_status', 'qc_standard', 'ai_score', 'qc_comment', 'qc_checked',
-            'plag_score'
+            'plag_score', 'draft_date'
         ]);
 
         // Apply filters
@@ -210,16 +210,20 @@ class QcSheet extends Component
         }
 
         if ($this->filterFromDate != '' && $this->filterToDate != '') {
-            if ($this->filterEditedOn != 'Qc-date') {
-                $ordersQuery->whereBetween('writer_deadline', [$this->filterFromDate, $this->filterToDate]);
-            } elseif ($this->filterEditedOn == 'Qc-date') {
+            if ($this->filterEditedOn == 'Qc-date') {
                 $ordersQuery->whereBetween('qc_date', [$this->filterFromDate, $this->filterToDate]);
+            } elseif ($this->filterEditedOn == 'Draft-date') {
+                $ordersQuery->whereBetween('draft_date', [$this->filterFromDate, $this->filterToDate]);
+            } else {
+                $ordersQuery->whereBetween('writer_deadline', [$this->filterFromDate, $this->filterToDate]);
             }
         } elseif ($this->filterFromDate != '') {
-            if ($this->filterEditedOn != 'Qc-date') {
-                $ordersQuery->whereDate('writer_deadline', $this->filterFromDate);
-            } elseif ($this->filterEditedOn == 'Qc-date') {
+            if ($this->filterEditedOn == 'Qc-date') {
                 $ordersQuery->whereDate('qc_date', $this->filterFromDate);
+            } elseif ($this->filterEditedOn == 'Draft-date') {
+                $ordersQuery->whereDate('draft_date', $this->filterFromDate);
+            } else {
+                $ordersQuery->whereDate('writer_deadline', $this->filterFromDate);
             }
         }
 

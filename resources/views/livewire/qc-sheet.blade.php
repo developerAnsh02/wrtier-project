@@ -85,6 +85,7 @@
                                     <option value="">Date Type</option>
                                     <option value="Order-date">Order Date</option>
                                     <option value="Qc-date">QC Date</option>
+                                    <option value="Draft-date">Draft Date</option>
                                 </select>
                             </div>
 
@@ -141,7 +142,7 @@
                                     @endif
                                     <th>Sr. No</th>
                                     <th>Order Code</th>
-                                    <th>D Date</th>
+                                    <th>Date</th>
                                     <th>Status</th>
                                     <th>Quality standard</th>
                                     <th>Ai Score</th>
@@ -166,10 +167,15 @@
                                         <div>{{ $order->order_id }}</div>                                        
                                         <div class="label label-table label-info">{{ $order->qc_admin }}</div>
                                     </td>
-                                    <td style="white-space: nowrap;">                                        
-                                        <div>{{ \Carbon\Carbon::parse($order->writer_deadline)->format('jS M Y') }}</div>                                            
-                                        @if($order->qc_date != null)                                            
-                                            <div class="label label-table label-danger">{{ \Carbon\Carbon::parse($order->qc_date)->format('jS M Y') }}</div>
+                                    <td style="white-space: nowrap;">                                                                               
+                                        @if(!empty($order->writer_deadline) && $order->writer_deadline !== '0000-00-00')
+                                            <div>{{ \Carbon\Carbon::parse($order->writer_deadline)->format('jS M Y') }}</div>                                            
+                                        @endif                                       
+                                        @if(!empty($order->qc_date) && $order->qc_date !== '0000-00-00')                                            
+                                            <div class="label label-table label-danger">Qc - {{ \Carbon\Carbon::parse($order->qc_date)->format('jS M Y') }}</div>
+                                        @endif
+                                        @if(!empty($order->draft_date) && $order->draft_date !== '0000-00-00')
+                                            <br><div class="label label-table label-info">Draft - {{ \Carbon\Carbon::parse($order->draft_date)->format('jS M Y') }}</div>
                                         @endif
                                     </td>
                                     <td style="white-space: nowrap;">
